@@ -1,6 +1,6 @@
 # v0.4.12 qualification evidence
 
-Upstream: `ffc142012af63d015fa19f05f29f9c5ff329a2cc`. Local source remains unpublished, package version 0.4.0.
+Upstream: `ffc142012af63d015fa19f05f29f9c5ff329a2cc`. These development qualification results used package version 0.4.0. The 0.5.0 release changes only runtime version metadata; final package and publication evidence is recorded separately in `benchmarks/results/release-v050.json`.
 
 ## Correctness and scope
 
@@ -37,7 +37,7 @@ P50 milliseconds; speedup is upstream P50 divided by native P50.
 | laya-typed-decisions | stability | 42.42 | 36.51 | 1.16× | 35.39 | 1.20× |
 | laya-typed-decisions | mixed_shapes | 146.86 | 116.35 | 1.26× | 129.20 | 1.14× |
 
-The raw [matrix summary](../../laya-mlx/benchmarks/results/v0412-final/summary.json) includes P95, mean-based throughput ratios, process peak RSS, tolerance and baseline version. Per-run JSON includes every sample and public output. `single` asks two questions; `batch8` asks two questions for eight heterogeneous states; `mixed_shapes` makes four calls/eight decisions per iteration.
+The raw [matrix summary](https://github.com/mizorewww/laya-mlx/blob/main/benchmarks/results/v0412-final/summary.json) includes P95, mean-based throughput ratios, process peak RSS, tolerance and baseline version. Per-run JSON includes every sample and public output. `single` asks two questions; `batch8` asks two questions for eight heterogeneous states; `mixed_shapes` makes four calls/eight decisions per iteration.
 
 ## Alternating-order Core ML confirmation
 
@@ -64,7 +64,7 @@ Each checkpoint runs upstream → Core ML → Core ML → upstream in fresh sequ
 | laya-typed-decisions | stability | 30.96 | 24.87 | 1.24× | 1.24× |
 | laya-typed-decisions | mixed_shapes | 106.42 | 82.34 | 1.29× | 1.30× |
 
-See the [paired summary](../../laya-mlx/benchmarks/results/v0412-final-paired/paired-summary.json) for both individual-run medians, pooled P95/means and numeric error; adjacent raw reports contain every sample, environment and checkpoint/source hashes. MLX’s sequential FP32 matrix wins 18/18 P50 and mean-throughput comparisons, with 1.06–1.93× P50 speedup. Core ML’s paired P50 range is 1.06–1.98×.
+See the [paired summary](https://github.com/mizorewww/laya-mlx/blob/main/benchmarks/results/v0412-final-paired/paired-summary.json) for both individual-run medians, pooled P95/means and numeric error; adjacent raw reports contain every sample, environment and checkpoint/source hashes. MLX’s sequential FP32 matrix wins 18/18 P50 and mean-throughput comparisons, with 1.06–1.93× P50 speedup. Core ML’s paired P50 range is 1.06–1.98×.
 
 ## Final local package gates
 

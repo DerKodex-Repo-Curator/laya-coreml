@@ -1,0 +1,16 @@
+{
+  "version": "0.5.0",
+  "native_source_sha256": "0e2742a52799cc77028b75c63a30090c3363dea6585c6842ecb2ab91c8be0e51",
+  "qualification_source_sha256": "9f16a897b0f5ed642ac3c4919ef899f9375771863cd60822d60148b3537913f3",
+  "runtime_change_since_qualification": "Only __version__ 0.4.0 to 0.5.0",
+  "artifacts": {
+    "laya_coreml-0.5.0-py3-none-any.whl": "2279115ca51293e5c15a859108c8772948a3c7c4bfbbec028a1638bd17810c71",
+    "laya_coreml-0.5.0.tar.gz": "7de2328e086a8ba62f360e46317f79e8754ef9d0e44b74bbf2d77341bba031e9"
+  },
+  "tests_passed": 334,
+  "strict_twine": "passed",
+  "publication_status": "pending_remote_ci",
+  "offline_wheel_smoke": "wheel-v050-smoke.json",
+  "offline_real_models": 3,
+  "installed_native_source_matches": true
+}
