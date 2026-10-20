@@ -706,10 +706,12 @@
     "No remote CI, release, push or Hub artifact replacement performed"
   ],
   "delivery_status": "release_in_progress",
-  "release_version": "0.5.0",
+  "release_version": "0.5.1",
   "delivery_remaining": [
     "Push migration and release commit",
     "Pass remote CI",
     "Publish and verify GitHub Release and PyPI artifacts"
-  ]
+  ],
+  "release_status": "compiled_instance_fix_under_validation",
+  "failed_unpublished_tag": "v0.5.0"
 }

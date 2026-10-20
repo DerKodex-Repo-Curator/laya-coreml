@@ -1,6 +1,6 @@
 ![Laya Core ML playing Snake with real local model probabilities](https://raw.githubusercontent.com/mizorewww/laya-coreml/main/docs/assets/snake-demo.gif)
 
-Version **0.5.0** targets official Laya **v0.4.12**
+Version **0.5.1** targets official Laya **v0.4.12**
 (`ffc142012af63d015fa19f05f29f9c5ff329a2cc`). Batch/long-text prediction, hooks,
 structured decisions, calibration, HTTP/MCP, evaluation, Router and optional
 integrations share the official host contracts. Native adaptive batch graphs and

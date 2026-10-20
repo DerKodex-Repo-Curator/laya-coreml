@@ -58,5 +58,7 @@
   "qualification_report": "docs/QUALIFICATION_0_4_12.md",
   "public_api_audit": "docs/UPSTREAM_0412_API_AUDIT.json",
   "package_gates": "benchmarks/results/v0412-package-gates.json",
-  "release_status": "pending_ci_and_publication"
+  "release_status": "compiled_instance_fix_under_validation",
+  "release_version": "0.5.1",
+  "failed_unpublished_tag": "v0.5.0"
 }

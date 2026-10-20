@@ -1,4 +1,4 @@
-"""Prepare validated 0.5.0 adaptive bundles; upload only with explicit --upload."""
+"""Prepare validated 0.5.1 adaptive bundles; upload only with explicit --upload."""
 
 import argparse
 import json
@@ -28,14 +28,14 @@ def main():
         for short, precision in (("fp16", "float16"), ("fp32", "float32")):
             source = ROOT / f"models/v0412/{name}-{short}-dense-adaptive"
             manifest = json.loads((source / "coreml_config.json").read_text())
-            evidence = ROOT / f"benchmarks/results/v0412-{name}-{precision}-cached-validation.json"
+            evidence = ROOT / f"benchmarks/results/v051-{name}-{precision}-validation.json"
             validation = json.loads(evidence.read_text())
             assert validation["passed"] and validation["stability"]["calls"] == 100
             assert validation["export"]["files"] == manifest["files"]
             assert manifest["precision"] == precision
             verify_files(source, manifest["files"])
             repo = f"{args.account}/{name}-coreml-adaptive-{short}"
-            output = ROOT / "models/hub-v0.5.0" / repo.split("/")[-1]
+            output = ROOT / "models/hub-v0.5.1" / repo.split("/")[-1]
             if not output.exists():
                 output.mkdir(parents=True)
                 for relative in manifest["files"]:
@@ -46,7 +46,7 @@ def main():
             manifest.update(
                 source=f"convaiinnovations/{name}",
                 source_revision=REVISIONS[name],
-                runtime_min_version="0.5.0",
+                runtime_min_version="0.5.1",
             )
             (output / "coreml_config.json").write_text(json.dumps(manifest, indent=2) + "\n")
             shutil.copyfile(evidence, output / "validation.json")
@@ -67,7 +67,7 @@ tags:
 # {name} Core ML adaptive {short.upper()}
 
 Native Core ML conversion of [convaiinnovations/{name}](https://huggingface.co/convaiinnovations/{name}),
-pinned source revision `{REVISIONS[name]}`. Requires **laya-coreml >= 0.5.0**,
+pinned source revision `{REVISIONS[name]}`. Requires **laya-coreml >= 0.5.1**,
 Apple silicon and macOS 15+. Tested on M3 Max. This is an independent conversion.
 
 ```python
@@ -78,7 +78,7 @@ with laya.load("{repo}") as agent:
     }})
 ```
 
-Install with `pip install laya-coreml==0.5.0`. Pin this repository's commit SHA
+Install with `pip install laya-coreml==0.5.1`. Pin this repository's commit SHA
 with `revision=` for reproducibility. Inference requires no PyTorch, MLX or Transformers.
 
 The bundle contains B=1/2/4/16 graphs, dense short sequence buckets,
@@ -110,12 +110,12 @@ Original single-graph Hub repositories remain unchanged.
                     repo_id=repo,
                     repo_type="model",
                     folder_path=output,
-                    commit_message="Publish validated laya-coreml 0.5.0 adaptive bundle",
+                    commit_message="Publish validated laya-coreml 0.5.1 adaptive bundle",
                 )
                 record["revision"] = commit.oid
                 record["commit_url"] = commit.commit_url
             receipts.append(record)
-            receipt_path = ROOT / "benchmarks/results/hub-v050-release.json"
+            receipt_path = ROOT / "benchmarks/results/hub-v051-release.json"
             receipt_path.write_text(json.dumps(receipts, indent=2) + "\n")
             print("Uploaded" if api is not None else "Prepared", repo, flush=True)
 
