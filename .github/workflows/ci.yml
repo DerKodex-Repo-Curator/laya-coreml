@@ -32,6 +32,16 @@ jobs:
       - run: python -m pip install -e '.[convert,dev,demo,publish,reference,serve,mcp,structured,llamaindex]'
       - run: ruff check .
       - run: ruff format --check .
-      - run: pytest -q
+      - run: python -X faulthandler -m pytest -vv
+      - name: Show native crash reports
+        if: failure() && runner.os == 'macOS'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          folder = Path.home() / "Library/Logs/DiagnosticReports"
+          for path in sorted(folder.glob("*Python*"))[-3:]:
+              print(path.name)
+              print(path.read_text()[:60000])
+          PY
       - run: python -m build
       - run: python -m twine check --strict dist/*
