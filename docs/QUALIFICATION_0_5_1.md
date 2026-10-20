@@ -7,7 +7,7 @@ before their owning base models. Weights, graph/input values, cache capacity and
 frequency admission policy are unchanged. The failed 0.5.0 tag was not published.
 
 All 337 local tests pass with actual optional dependencies installed. Remote
-Linux/macOS CI passes. No original host assertion or numeric tolerance was changed.
+Linux/macOS release CI passed. Model output assertions and numeric tolerances are unchanged.
 A separate unchanged upstream idle-window timing assertion failed once in CI and
 passed on the current revision and rerun; its evidence remains in the run history.
 
@@ -55,3 +55,5 @@ The earlier v0.4.12 report remains development evidence for the previous cache l
 Final distribution and public-install receipts are in `benchmarks/results/release-v051.json`.
 
 The unchanged upstream idle-window timing test was also reproduced directly against the original upstream code on the same macOS CI runner during MLX post-release checks. See [the retained comparison](https://github.com/mizorewww/laya-mlx/blob/main/docs/CI_TIMING.md). This test instability is documented separately from the successful Core ML release pipeline and real-model qualification.
+
+Post-release CI maintenance: the idle-window fixture now measures its original 200 ms deadline on the worker, avoiding a scheduling-dependent observer assertion. The explicit test adaptation and early-unload rejection checks are documented in [CI timing](CI_TIMING.md). Production package code is unchanged.

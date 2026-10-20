@@ -1,8 +1,10 @@
-"""Run unchanged upstream host assertions against the Core ML namespace.
+"""Run upstream host assertions against the Core ML namespace.
 
 Only Python imports and mock target module paths are rewritten. Router tests stub
 Agent construction; dispatch that stub through the Core ML load factory as well.
-No assertions, expected values or public model names are rewritten.
+The idle-window fixture measures its unchanged 200 ms contract on the worker
+rather than imposing a 100 ms scheduling deadline on the observing test thread.
+Other host assertions, numeric tolerances and public model names are preserved.
 """
 
 import ast
@@ -57,6 +59,58 @@ class Namespace(ast.NodeTransformer):
                 node.value = "laya_coreml" + node.value[4:]
                 node.value = node.value.replace("laya_coreml.cli", "laya_coreml.router_cli")
         return node
+
+
+def measure_idle_window_on_worker(tree):
+    """Measure the original 200 ms contract where inference/unload actually run.
+
+    A caller observing Event.wait(0.1) can resume after the entire idle window.
+    Preserve the waits, eight parameter combinations and non-overlap assertion,
+    but assert elapsed time in BlockingRouter.unload, before it sets the event.
+    Fail closed if the pinned upstream fixture structure changes.
+    """
+    target = next(
+        n
+        for n in tree.body
+        if isinstance(n, ast.FunctionDef)
+        and n.name == "test_idle_window_starts_after_worker_finishes_even_on_cancel_or_failure"
+    )
+    router = next(
+        n for n in target.body if isinstance(n, ast.ClassDef) and n.name == "BlockingRouter"
+    )
+    predict = next(n for n in router.body if isinstance(n, ast.FunctionDef) and n.name == "predict")
+    finalizers = [n.finalbody for n in ast.walk(predict) if isinstance(n, ast.Try)]
+    marked = 0
+    for statements in finalizers:
+        for index, statement in enumerate(statements):
+            if ast.unparse(statement) == "self.finished.set()":
+                statements[index:index] = ast.parse("self.finished_at = time.monotonic()").body
+                marked += 1
+                break
+    assert marked == 1, "upstream completion marker changed"
+    unload = next(n for n in router.body if isinstance(n, ast.FunctionDef) and n.name == "unload")
+    assert isinstance(unload.body[0], ast.Assert), "upstream non-overlap assertion changed"
+    unload.body[1:1] = ast.parse(
+        "assert time.monotonic() - self.finished_at >= 0.2, 'unload preceded idle deadline'"
+    ).body
+
+    class ObserveWithoutSchedulerDeadline(ast.NodeTransformer):
+        replaced = 0
+
+        def visit_Assert(self, node):
+            expected = {
+                "not router.unloaded.wait(0.1)",
+                "not await asyncio.to_thread(router.unloaded.wait, 0.1)",
+            }
+            if ast.unparse(node.test) in expected:
+                self.replaced += 1
+                return ast.Expr(value=node.test.operand)
+            return node
+
+    observer = ObserveWithoutSchedulerDeadline()
+    observer.visit(target)
+    assert observer.replaced == 2, "upstream idle observations changed"
+    return tree
 
 
 def main():
@@ -197,6 +251,8 @@ def main():
                 node.elts = [
                     e for e in node.elts if not (isinstance(e, ast.Name) and e.id == "ONNXAgent")
                 ]
+    if path.stem == "test_serve":
+        tree = measure_idle_window_on_worker(tree)
     tree = ast.fix_missing_locations(Namespace().visit(tree))
     import laya_coreml.agent as agent
 

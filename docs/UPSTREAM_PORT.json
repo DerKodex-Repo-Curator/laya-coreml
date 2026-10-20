@@ -50,7 +50,8 @@
     "Imports and mock targets point to laya_coreml; source model IDs and expected host values remain unchanged",
     "Router construction stubs are dispatched through the Core ML factory",
     "Two structured suites exclude their ONNX-only method-existence assertion",
-    "CUDA device, PyTorch thread-pool and training CLI checks use separate Core ML boundary tests"
+    "CUDA device, PyTorch thread-pool and training CLI checks use separate Core ML boundary tests",
+    "Idle-window fixture measures the same 200 ms minimum on the worker; preserves eight combinations, non-overlap and eventual-unload checks; rejects early unloading with controlled-clock regression coverage (docs/CI_TIMING.md)."
   ],
   "artifact_audit": "benchmarks/results/official-v041-artifact-audit.json",
   "real_model_validation": "benchmarks/results/v051-MODEL-PRECISION-validation.json",
