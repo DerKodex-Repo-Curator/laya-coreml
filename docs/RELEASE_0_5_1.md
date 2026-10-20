@@ -45,7 +45,8 @@ with laya.load(
     "aac6fef/laya-multilingual-coreml-adaptive-fp16",
     revision="d7927f83d2fd324b2e9cfed72cc2277e6a255387",
 ) as agent:
-    result = agent.predict("The customer requests a refund.", {
-        "refund": {"type": "noul", "instructions": "Does the customer request a refund?"}
-    })
+    result = agent.predict(
+        "The customer requests a refund.",
+        {"refund": {"type": "noul", "instructions": "Does the customer request a refund?"}},
+    )
 ```
