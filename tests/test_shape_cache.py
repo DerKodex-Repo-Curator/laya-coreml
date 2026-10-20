@@ -25,9 +25,12 @@ def test_frequency_admission_identity_values_and_cleanup(monkeypatch):
         def predict(self, arrays):
             return arrays["input_ids"].sum()
 
-    monkeypatch.setattr("coremltools.models.MLModel", Model)
+    monkeypatch.setattr("coremltools.models.CompiledMLModel", Model)
     model = SimpleNamespace(
-        package_path="a", compute_unit="cpu_gpu", predict=lambda arrays: arrays["input_ids"].sum()
+        package_path="a",
+        compute_unit="cpu_gpu",
+        get_compiled_model_path=lambda: "a.mlmodelc",
+        predict=lambda arrays: arrays["input_ids"].sum(),
     )
     cache = ShapeCache(2)
 
@@ -38,7 +41,7 @@ def test_frequency_admission_identity_values_and_cleanup(monkeypatch):
     assert made == []  # first shape reuses the already loaded graph
     assert call(32) == 32
     assert call(16, 3) == 48  # cache execution instances, never model outputs
-    assert len(made) == 1
+    assert made == [("a.mlmodelc", "cpu_gpu")]
     assert call(64) == 64
     assert len(made) == 2 and len(cache._models) == 2
     assert call(128) == 128  # a long-tail miss reshapes the base, without a clone
@@ -74,7 +77,7 @@ def test_concurrent_same_shape_loads_once(monkeypatch):
                 counts["active"] -= 1
             return arrays["input_ids"].sum()
 
-    monkeypatch.setattr("coremltools.models.MLModel", Model)
+    monkeypatch.setattr("coremltools.models.CompiledMLModel", Model)
     model = Model()
     model.package_path, model.compute_unit = "a", "cpu_gpu"
     cache = ShapeCache(1)
@@ -97,13 +100,16 @@ def test_long_tail_does_not_reload_every_request(monkeypatch):
     class Model:
         package_path, compute_unit = "a", "cpu_gpu"
 
+        def get_compiled_model_path(self):
+            return "a.mlmodelc"
+
         def __init__(self, *args, **kwargs):
             loads.append(True)
 
         def predict(self, arrays):
             return arrays["input_ids"].shape[1]
 
-    monkeypatch.setattr("coremltools.models.MLModel", Model)
+    monkeypatch.setattr("coremltools.models.CompiledMLModel", Model)
     base = Model()
     cache = ShapeCache(2)
     for _ in range(12):
@@ -120,7 +126,7 @@ def test_each_physical_graph_reuses_its_first_instance(monkeypatch):
     def unexpected(*args, **kwargs):
         raise AssertionError("First shape must not create an additional model")
 
-    monkeypatch.setattr("coremltools.models.MLModel", unexpected)
+    monkeypatch.setattr("coremltools.models.CompiledMLModel", unexpected)
     cache = ShapeCache(1)
     for graph in range(4):
         model = SimpleNamespace(
@@ -131,3 +137,18 @@ def test_each_physical_graph_reuses_its_first_instance(monkeypatch):
         assert cache.predict(model, {"input_ids": np.ones((1, 16))}) == 16
     assert not cache._models
     assert len(cache._base_shapes) == 4
+
+
+def test_close_releases_compiled_instances_before_base_directories():
+    from laya_coreml.runtime import RuntimeMixin
+
+    base, variant = object(), object()
+    agent = SimpleNamespace(model=base, _batch_models={2: variant})
+
+    def clear():
+        assert agent.model is base
+        assert agent._batch_models == {2: variant}
+
+    agent._shape_cache = SimpleNamespace(clear=clear)
+    assert RuntimeMixin.__exit__(agent, None, None, None) is False
+    assert agent.model is None and not agent._batch_models

@@ -60,8 +60,12 @@ class ShapeCache:
                     del self._frequency[victim]
                 import coremltools as ct
 
-                self._models[key] = ct.models.MLModel(
-                    model.package_path, compute_units=model.compute_unit
+                # The owning Agent retains the base model and therefore its
+                # compiled directory for the lifetime of these instances.
+                # Recompiling the package on each admission can crash inside
+                # coremltools' native proxy/GIL handling on macOS 26.
+                self._models[key] = ct.models.CompiledMLModel(
+                    model.get_compiled_model_path(), compute_units=model.compute_unit
                 )
                 self._frequency[key] = frequency
                 self._misses.pop(key, None)

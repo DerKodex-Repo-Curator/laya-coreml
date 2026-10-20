@@ -1413,11 +1413,13 @@ class RuntimeMixin(HookRegistry):
         return np.concatenate(logits), np.concatenate(actions)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # Compiled execution instances borrow their base model's directory.
+        # Drop the instances before releasing the owners of those directories.
+        if hasattr(self, "_shape_cache"):
+            self._shape_cache.clear()
         self.model = None
         if hasattr(self, "_batch_models"):
             self._batch_models.clear()
-        if hasattr(self, "_shape_cache"):
-            self._shape_cache.clear()
         gc.collect()
         return False
 
