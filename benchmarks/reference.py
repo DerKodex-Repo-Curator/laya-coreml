@@ -15,7 +15,7 @@ from pathlib import Path
 
 from .cases import parity_cases
 
-UPSTREAM_REVISION = "573e5b62696ba441230cd6be71d593331b5d23af"
+UPSTREAM_REVISION = "ffc142012af63d015fa19f05f29f9c5ff329a2cc"
 
 
 def main():
@@ -40,6 +40,8 @@ def main():
         "upstream_revision": commit,
         "device": "mps",
         "dtype": "float32",
+        "autocast_enabled": False,
+        "public_result_precision": "float32 for every row count",
         "versions": {
             name: importlib.metadata.version(name)
             for name in ("torch", "transformers", "tokenizers")
@@ -48,6 +50,10 @@ def main():
     }
     for name, revision in REVISIONS.items():
         agent = laya.load(str(a.model_root / name), device="mps")
+        # v0.4.12 otherwise switches public predict() to FP16 for larger batches.
+        # Raw logits and public outputs must use the same stated reference precision.
+        agent.amp_enabled = False
+        assert agent.dtype_for(64) == torch.float32
         if agent.device.type != "mps":
             raise RuntimeError("Reference unexpectedly fell back from MPS")
         cases = []

@@ -139,6 +139,13 @@ def test_long_and_structured_match_official(official):
 @pytest.mark.parametrize(
     "script",
     [
+        "option_stability",
+        "evals_agreement",
+        "evals_tournament",
+        "agno",
+        "tools",
+        "hooks",
+        "hooks_api",
         "serve",
         "evals",
         "evals_api",

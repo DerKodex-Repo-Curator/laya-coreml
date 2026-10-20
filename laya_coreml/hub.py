@@ -72,6 +72,7 @@ def resolve_checkpoint(model, *, revision=None, local_files_only=False, token=No
                     "encoder/config.json",
                     "tokenizer/*",
                     "model.mlpackage/**",
+                    "batches/*/model.mlpackage/**",
                     "host_weights.safetensors",
                 ]
             ],

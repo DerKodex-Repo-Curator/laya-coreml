@@ -123,6 +123,57 @@ _TYPED_DECISION_WORKFLOWS = {
 # with a letter or digit. No `/`, because a Hub id or a path is a source, not a name.
 _NAME_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
+# An adjacent transposition counts as one edit, so `enlgish` is one away from
+# `english`. Set this false for plain Levenshtein, where that pair costs two.
+_COUNT_ADJACENT_SWAP = True
+
+
+def _edit_distance(left: str, right: str) -> int:
+    """Edits that turn `left` into `right`: insert, delete, substitute, adjacent swap.
+
+    The swap is the only step that is not Levenshtein. It is gated by
+    `_COUNT_ADJACENT_SWAP`, so dropping that flag is the whole change.
+    """
+    if left == right:
+        return 0
+    n, m = len(left), len(right)
+    # `prev2` is the row two steps back, which is what an adjacent swap reads.
+    prev2: Optional[List[int]] = None
+    prev: List[int] = list(range(m + 1))
+    for i in range(1, n + 1):
+        cur = [i]
+        lc = left[i - 1]
+        for j in range(1, m + 1):
+            rc = right[j - 1]
+            cost = 0 if lc == rc else 1
+            best = min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost)
+            if (
+                _COUNT_ADJACENT_SWAP
+                and prev2 is not None
+                and j > 1
+                and lc == right[j - 2]
+                and left[i - 2] == rc
+            ):
+                best = min(best, prev2[j - 2] + 1)
+            cur.append(best)
+        prev2 = prev
+        prev = cur
+    return prev[m]
+
+
+def _near_builtin(key: str) -> Optional[str]:
+    """Built-in name within one edit of `key`, or None.
+
+    Compared with the built-in names only, not their aliases. `en` and `ml` are
+    short enough that ordinary names sit one edit away from them.
+    """
+    for name in DEFAULT_MODELS:
+        if abs(len(key) - len(name)) > 1:
+            continue
+        if _edit_distance(key, name) == 1:
+            return name
+    return None
+
 
 def canonical_name(name: Any) -> str:
     """Trim, lowercase and resolve an alias, without asking whether the result names a checkpoint.
@@ -823,6 +874,9 @@ class Router(HookRegistry):
 
         `description` is free text about the checkpoint for whoever reads `registered`.
 
+        A name within one edit of a built-in is still registered, with a warning that names both
+        and leaves the built-in unchanged.
+
         A nested `LAYA_SHA256_DIGESTS` entry for this name is picked up here; an entry for a name the
         constructor did not know still fails at construction, as before.
 
@@ -929,6 +983,22 @@ class Router(HookRegistry):
             )
         if isinstance(source, str) and source.startswith("~"):
             source = os.path.expanduser(source)  # a local path, never a Hub repo id
+        # After every check that can refuse the registration, and before the write. A filter
+        # that turns warnings into errors then raises with nothing stored, and `register`'s
+        # rollback still runs because the warning is inside its try. Built-in names and their
+        # aliases re-point that checkpoint, so they are not typos of themselves.
+        # 3, not 2: the frames from here are `_add` -> `register` / `Router.__init__` / `attach`
+        # -> the caller. 2 points inside this file, and the default once-per-location filter
+        # would then warn once for the process instead of once per call site.
+        if key not in DEFAULT_MODELS:
+            near = _near_builtin(key)
+            if near is not None:
+                warnings.warn(
+                    "laya: checkpoint name %r is one edit from the built-in %r; it is registered "
+                    "as a separate checkpoint and %r is unchanged." % (key, near, near),
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
         self.models[key] = source
         return key
 
@@ -1713,6 +1783,10 @@ class Router(HookRegistry):
                 raise TypeError("request %d must be a dict, got %s" % (i, type(request).__name__))
             if "state" not in request:
                 raise ValueError("request %d is missing required key 'state'" % i)
+            if request["state"] is None:
+                raise TypeError(
+                    "request %d 'state' must not be None; pass a string, dict, or list" % i
+                )
             if "questions" not in request:
                 raise ValueError("request %d is missing required key 'questions'" % i)
 
@@ -1750,6 +1824,7 @@ class Router(HookRegistry):
         on_predict_start=None,
         on_predict_end=None,
         hooks_raise: Optional[bool] = None,
+        diagnostics: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """Route and execute a heterogeneous request batch with minimal model churn.
 
@@ -1792,6 +1867,13 @@ class Router(HookRegistry):
             on_predict_start (PredictHookArg): Plain callable or sequence of callables for start events.
             on_predict_end (PredictHookArg): Plain callable or sequence of callables for end events.
             hooks_raise: Override the Router's ``hooks_raise`` policy for this call.
+            diagnostics: Optional dict that receives the per-group sort outcome under the key
+                ``"sort_by_length"`` once the batch has run: how many question groups actually
+                reached an agent, how many of those could reorder, and the smallest / largest
+                group size. The reorder switches per group inside this call, so a caller that
+                wants to say whether the knob did anything (#1111) reads this instead of
+                guessing from the request count beforehand. Untouched when ``sort_by_length``
+                is false or no group reached an agent.
 
         Returns:
             One normal Router prediction result per request, in the same order as the input.
@@ -1817,6 +1899,14 @@ class Router(HookRegistry):
         # `predict` returns as it is.
         results: List[Any] = [None] * len(requests)
         answered = 0
+        # The per-group sort outcome, kept only for a caller that asked for it (#1111): the
+        # reorder switches per question group inside the loop below, and no caller outside
+        # this method can see the group sizes it forms.
+        sort_report = (
+            {"groups": 0, "reordered": 0, "smallest": None, "largest": None}
+            if sort_by_length and diagnostics is not None
+            else None
+        )
         # `compose_hooks`, not `list(self.hooks)`: the composition `predict` uses. It merges
         # `set_default_hooks` defaults, then installed hooks, then this call's `hooks`,
         # `on_predict_start` and `on_predict_end`. Reading the instance list alone silently
@@ -1862,6 +1952,8 @@ class Router(HookRegistry):
                 # checkpoint group again on what the start hooks left, so a rewritten question
                 # set or `ctx.max_len` only applies to its own request.
                 question_groups: List[Dict[str, Any]] = []
+                last_questions = None
+                last_schema = None
                 for i, ctx in zip(indices, started):
                     if ctx.results is not None:
                         # A cache hit short-circuits inference; keep the `routing` key predict adds.
@@ -1871,14 +1963,17 @@ class Router(HookRegistry):
                         continue
                     # Pass token-budget overrides only when set, as `predict` does, so an
                     # Agent-like object that does not accept them still works.
-                    overrides = {
-                        key: value
-                        for key, value in (
-                            ("max_len", ctx.max_len),
-                            ("head_max_len", ctx.head_max_len),
-                        )
-                        if value is not None
-                    }
+                    if ctx.max_len is None and ctx.head_max_len is None:
+                        overrides = {}
+                    else:
+                        overrides = {
+                            key: value
+                            for key, value in (
+                                ("max_len", ctx.max_len),
+                                ("head_max_len", ctx.head_max_len),
+                            )
+                            if value is not None
+                        }
                     # `predict` forwards the language of the request so the agent can apply its
                     # per-language temperatures; the batched path forwarded only the token
                     # budgets, so the same request scored differently depending on the entry
@@ -1893,7 +1988,12 @@ class Router(HookRegistry):
                             lang_key = detection.get("language")
                     # Order-sensitive at every nesting level (#166): options are positional, so two
                     # equal schemas with different key orders must not share a group.
-                    schema = _question_schema(ctx.questions)
+                    if ctx.questions is last_questions:
+                        schema = last_schema
+                    else:
+                        schema = _question_schema(ctx.questions)
+                        last_questions = ctx.questions
+                        last_schema = schema
                     for group in question_groups:
                         if (
                             group["schema"] == schema
@@ -1958,6 +2058,26 @@ class Router(HookRegistry):
                             % (len(batch_results), len(items))
                         )
 
+                    if sort_report is not None:
+                        # What this group actually did with the knob: the agent reorders only
+                        # when `batch_size` clears its own `1 < chunk < len(states)` gate
+                        # (agent.py:1519, onnx_agent.py:761) over this group's states. A group
+                        # whose agent predates the knob (#294) reports as unsorted, not as an
+                        # error -- the run answered, just at one state's width.
+                        n = len(items)
+                        reorders = bool(
+                            "sort_by_length" in batch_kwargs
+                            and batch_size
+                            and batch_size > 1
+                            and batch_size < n
+                        )
+                        sort_report["groups"] += 1
+                        sort_report["reordered"] += int(reorders)
+                        if sort_report["smallest"] is None or n < sort_report["smallest"]:
+                            sort_report["smallest"] = n
+                        if sort_report["largest"] is None or n > sort_report["largest"]:
+                            sort_report["largest"] = n
+
                     for (i, ctx), result in zip(items, batch_results):
                         result["routing"] = dict(decisions[i])
                         ctx.results = [result]
@@ -1996,6 +2116,8 @@ class Router(HookRegistry):
         if answered != len(requests):
             raise RuntimeError("internal error: batch execution did not produce every result")
 
+        if sort_report is not None:
+            diagnostics["sort_by_length"] = sort_report
         return results
 
     predict_many = predict_batch

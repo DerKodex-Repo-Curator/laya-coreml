@@ -18,6 +18,9 @@ def main():
     export.add_argument("--revision")
     export.add_argument("--attention", choices=["explicit", "sdpa"], default="sdpa")
     export.add_argument("--shape-mode", choices=["enumerated", "range"], default="enumerated")
+    bundle = commands.add_parser("batch-bundle", help="Combine matching fixed-batch exports")
+    bundle.add_argument("output")
+    bundle.add_argument("exports", nargs="+")
     predict = commands.add_parser("predict")
     predict.add_argument("model_dir")
     predict.add_argument("--state", required=True, help="Literal state text")
@@ -49,6 +52,10 @@ def main():
             attention=args.attention,
             shape_mode=args.shape_mode,
         )
+    elif args.command == "batch-bundle":
+        from .batching import assemble_batch_bundle
+
+        print(assemble_batch_bundle(args.exports, args.output))
     else:
         from pathlib import Path
 

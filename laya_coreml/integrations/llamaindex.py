@@ -24,7 +24,13 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 # Optional LlamaIndex base classes
 try:
     from llama_index.core.schema import QueryBundle
-    from llama_index.core.selectors import BaseSelector, SelectorResult, ToolSelection
+    from llama_index.core.selectors import BaseSelector, SelectorResult
+
+    try:
+        from llama_index.core.selectors import SingleSelection as ToolSelection
+    except ImportError:
+        # Retain compatibility with older integrations exposing this spelling.
+        from llama_index.core.selectors import ToolSelection
     from llama_index.core.tools import ToolMetadata
 
     _LLAMA_INDEX_AVAILABLE = True
@@ -71,6 +77,11 @@ from ._controls import decision_kwargs as _decision_kwargs  # noqa: E402
 from ._controls import hook_kwargs as _hook_kwargs
 from ._controls import predict_kwargs as _predict_kwargs  # noqa: E402
 from ._controls import reject_remote_hooks as _reject_remote_hooks
+from ._controls import (
+    reject_remote_lang_guess as _reject_remote_lang_guess,  # noqa: E402
+)
+from ._controls import require_router_controls as _require_router_controls  # noqa: E402
+from ._controls import router_kwargs as _router_kwargs  # noqa: E402
 
 # One class for every integration, so `except LayaLowConfidenceError` catches all of them.
 from ._errors import LayaLowConfidenceError  # noqa: E402
@@ -153,13 +164,18 @@ def _call_remote(
     head_max_len: Optional[int] = None,
     lang: Optional[str] = None,
     min_confidence: Optional[float] = None,
+    task: Optional[str] = None,
+    lang_guess: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Send decision request to a remote laya-serve HTTP instance using standard library urllib.
 
     `max_len` / `head_max_len` travel in the body; laya-serve applies them up to its
     `LAYA_MAX_TOKEN_BUDGET` ceiling and answers a larger value with 422. `lang` / `min_confidence`
     ride in the same body (they are laya-serve `BODY_CONTROLS` too): the language codes the state
-    is routed and answered in, and core's abstention gate.
+    is routed and answered in, and core's abstention gate. `task` names the checkpoint that answers
+    and `lang_guess` is the language code routing reads before its own detection -- both are
+    laya-serve body controls too, and only `lang_guess`'s string form has a wire representation
+    (`reject_remote_lang_guess` refuses the callable before the request).
     """
     url = base_url.rstrip("/")
     if not url.endswith("/v1/systemone"):
@@ -176,6 +192,10 @@ def _call_remote(
         payload["lang"] = lang
     if min_confidence is not None:
         payload["min_confidence"] = min_confidence
+    if task is not None:
+        payload["task"] = task
+    if lang_guess is not None:
+        payload["lang_guess"] = lang_guess
 
     data = json.dumps(payload).encode("utf-8")
     headers = {"Content-Type": "application/json"}
@@ -220,6 +240,8 @@ def _execute_decision(
     head_max_len: Optional[int] = None,
     lang: Optional[str] = None,
     min_confidence: Optional[float] = None,
+    task: Optional[str] = None,
+    lang_guess: Optional[Any] = None,
     hooks: Optional[Any] = None,
     on_predict_start: Optional[Any] = None,
     on_predict_end: Optional[Any] = None,
@@ -232,20 +254,41 @@ def _execute_decision(
     CrewAI wrappers -- they end at the same `predict` call and the same request body.
     """
     hook_kwargs = _hook_kwargs(hooks, on_predict_start, on_predict_end, hooks_raise, hooks_timeout)
+    router_kwargs = _router_kwargs(task, lang_guess)
     if base_url:
         _reject_remote_hooks(hook_kwargs, base_url)
+        _reject_remote_lang_guess(router_kwargs, base_url)
         budget = _budget_kwargs(max_len, head_max_len)
         decision = _decision_kwargs(lang, min_confidence)
         return _call_remote(
-            base_url, state, questions, api_key=api_key, model=model, **budget, **decision
+            base_url,
+            state,
+            questions,
+            api_key=api_key,
+            model=model,
+            **budget,
+            **decision,
+            **router_kwargs,
         )
     runner = agent if agent is not None else _get_default_router()
     kwargs = _predict_kwargs(model, max_len, head_max_len, lang, min_confidence)
+    kwargs.update(_require_router_controls(runner, "predict", router_kwargs))
     kwargs.update(hook_kwargs)
     return runner.predict(state, questions, **kwargs)
 
 
-class LayaSingleSelector(BaseSelector):
+class _TypedSelectorPrompts:
+    """Laya uses typed question instructions, not an LLM prompt template."""
+
+    def _get_prompts(self):
+        return {}
+
+    def _update_prompts(self, prompts):
+        if prompts:
+            raise ValueError("Laya selectors use instructions; no LLM prompt templates are exposed")
+
+
+class LayaSingleSelector(_TypedSelectorPrompts, BaseSelector):
     """Sub-35ms single-choice selector for LlamaIndex RouterQueryEngine.
 
     Replaces LLMSingleSelector to route queries to candidate query engines or tools
@@ -267,6 +310,8 @@ class LayaSingleSelector(BaseSelector):
         head_max_len: Optional[int] = None,
         lang: Optional[str] = None,
         min_confidence: Optional[float] = None,
+        task: Optional[str] = None,
+        lang_guess: Optional[Any] = None,
         hooks: Optional[Any] = None,
         on_predict_start: Optional[Any] = None,
         on_predict_end: Optional[Any] = None,
@@ -285,6 +330,8 @@ class LayaSingleSelector(BaseSelector):
         self.head_max_len = head_max_len
         self.lang = lang
         self.min_confidence = min_confidence
+        self.task = task
+        self.lang_guess = lang_guess
         self.hooks = hooks
         self.on_predict_start = on_predict_start
         self.on_predict_end = on_predict_end
@@ -323,6 +370,8 @@ class LayaSingleSelector(BaseSelector):
             head_max_len=self.head_max_len,
             lang=self.lang,
             min_confidence=self.min_confidence,
+            task=self.task,
+            lang_guess=self.lang_guess,
             hooks=self.hooks,
             on_predict_start=self.on_predict_start,
             on_predict_end=self.on_predict_end,
@@ -394,7 +443,7 @@ class LayaSingleSelector(BaseSelector):
         return await self._aselect(choices, query)
 
 
-class LayaMultiSelector(BaseSelector):
+class LayaMultiSelector(_TypedSelectorPrompts, BaseSelector):
     """Sub-35ms multi-choice selector for LlamaIndex RouterQueryEngine.
 
     Replaces LLMMultiSelector to evaluate and select multiple query engines or tools
@@ -415,6 +464,8 @@ class LayaMultiSelector(BaseSelector):
         head_max_len: Optional[int] = None,
         lang: Optional[str] = None,
         min_confidence: Optional[float] = None,
+        task: Optional[str] = None,
+        lang_guess: Optional[Any] = None,
         hooks: Optional[Any] = None,
         on_predict_start: Optional[Any] = None,
         on_predict_end: Optional[Any] = None,
@@ -433,6 +484,8 @@ class LayaMultiSelector(BaseSelector):
         self.head_max_len = head_max_len
         self.lang = lang
         self.min_confidence = min_confidence
+        self.task = task
+        self.lang_guess = lang_guess
         self.hooks = hooks
         self.on_predict_start = on_predict_start
         self.on_predict_end = on_predict_end
@@ -470,6 +523,8 @@ class LayaMultiSelector(BaseSelector):
             head_max_len=self.head_max_len,
             lang=self.lang,
             min_confidence=self.min_confidence,
+            task=self.task,
+            lang_guess=self.lang_guess,
             hooks=self.hooks,
             on_predict_start=self.on_predict_start,
             on_predict_end=self.on_predict_end,
@@ -576,6 +631,8 @@ class LayaQueryRouter:
         head_max_len: Optional[int] = None,
         lang: Optional[str] = None,
         min_confidence: Optional[float] = None,
+        task: Optional[str] = None,
+        lang_guess: Optional[Any] = None,
         hooks: Optional[Any] = None,
         on_predict_start: Optional[Any] = None,
         on_predict_end: Optional[Any] = None,
@@ -595,6 +652,8 @@ class LayaQueryRouter:
         self.head_max_len = head_max_len
         self.lang = lang
         self.min_confidence = min_confidence
+        self.task = task
+        self.lang_guess = lang_guess
         self.hooks = hooks
         self.on_predict_start = on_predict_start
         self.on_predict_end = on_predict_end
@@ -629,6 +688,8 @@ class LayaQueryRouter:
             head_max_len=self.head_max_len,
             lang=self.lang,
             min_confidence=self.min_confidence,
+            task=self.task,
+            lang_guess=self.lang_guess,
             hooks=self.hooks,
             on_predict_start=self.on_predict_start,
             on_predict_end=self.on_predict_end,

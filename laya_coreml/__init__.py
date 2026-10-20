@@ -22,7 +22,7 @@ import os as _os
 _os.environ.setdefault("USE_TF", "0")
 
 from .email import clean_email_body, email_state
-from .hooks import AsyncHook, BaseHook, Hook, PredictContext, PredictHook
+from .hooks import AsyncHook, BaseHook, Hook, OptionStabilityHook, PredictContext, PredictHook
 from .lang import analyse as detect_language
 from .lang import detect_script, is_english
 from .presets import (
@@ -35,7 +35,7 @@ from .presets import (
 from .router import DEFAULT_MODELS, RouteDecision, Router
 from .structured import DecisionResult, decide, decide_batch
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # Routing, language detection and email cleaning are pure Python. The torch-backed names are
 # resolved lazily so that `import laya` -- and therefore `from laya_coreml import Router` or
@@ -52,6 +52,7 @@ _LAZY_ATTRS = {
     "fit_abstention_thresholds": (".calibrate", "fit_abstention_thresholds"),
     "fit_binning_map": (".calibrate", "fit_binning_map"),
     "apply_binning_map": (".calibrate", "apply_binning_map"),
+    "jev_confidence": (".confidence", "jev_confidence"),
     "proper_reward": (".common", "proper_reward"),
     "td_lambda_targets": (".common", "td_lambda_targets"),
     "ece_score": (".common", "ece_score"),
@@ -148,6 +149,8 @@ __all__ = [
     "PredictHook",
     "Hook",
     "BaseHook",
+    "OptionStabilityHook",
+    "jev_confidence",
     "AsyncHook",
     "decide",
     "decide_batch",

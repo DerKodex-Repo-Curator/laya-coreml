@@ -1,9 +1,11 @@
 import hashlib
 import importlib.metadata
 import json
+import math
 import platform
 import subprocess
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 
 import numpy as np
@@ -116,3 +118,33 @@ def compute_plan(agent):
         "estimated_cost_by_device": dict(costs),
         "operations": operations,
     }
+
+
+def public_differences(expected, actual, tolerance, path=""):
+    """Compare complete public results, allowing only bounded float drift."""
+    if isinstance(expected, dict) and isinstance(actual, dict):
+        differences = [] if expected.keys() == actual.keys() else [path + ": keys differ"]
+        for key in expected.keys() & actual.keys():
+            differences += public_differences(
+                expected[key], actual[key], tolerance, path + "/" + key
+            )
+        return differences
+    if isinstance(expected, list) and isinstance(actual, list):
+        differences = [] if len(expected) == len(actual) else [path + ": lengths differ"]
+        for i, (left, right) in enumerate(zip(expected, actual)):
+            differences += public_differences(left, right, tolerance, path + "/" + str(i))
+        return differences
+    if isinstance(expected, float) and type(actual) in (float, int):
+        if not math.isfinite(expected) or not math.isfinite(actual):
+            return [path + ": non-finite public value"]
+        # Public outputs are serialized decimal values; keep the stated tolerance
+        # exact at a rounding boundary. Raw tensor error checks are unchanged.
+        error = abs(Decimal(str(expected)) - Decimal(str(actual)))
+        return (
+            []
+            if error <= Decimal(str(tolerance))
+            else [f"{path}: float drift {error} > {tolerance!r}; {expected!r} != {actual!r}"]
+        )
+    return (
+        [] if type(expected) is type(actual) and expected == actual else [path + ": values differ"]
+    )

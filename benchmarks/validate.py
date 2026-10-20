@@ -13,7 +13,7 @@ import psutil
 from laya_coreml import Agent
 from laya_coreml.inputs import collate_items
 
-from .common import calibrated, environment, save, softmax
+from .common import calibrated, environment, public_differences, save, softmax
 
 
 def main():
@@ -106,6 +106,11 @@ def main():
         ):
             raise AssertionError("Token accounting mismatch")
         case["public_result_equal"] = result == entry["result"]
+        tolerance = 1e-4 if agent.manifest["precision"] == "float32" else 0.02
+        differences = public_differences(entry["result"], result, tolerance)
+        case["public_result_differences"] = differences
+        if differences:
+            raise AssertionError(f"Public output differs in {entry['name']}: {differences}")
         report["cases"].append(case)
         expected.append((entry, result))
         print(
@@ -118,11 +123,16 @@ def main():
     rss_before = process.memory_info().rss
     memory_samples = [rss_before]
     stable = True
+    cache = getattr(agent, "_shape_cache", None)
+    cache_counts = []
     started = time.perf_counter()
     for index in range(a.repeats):
         entry, expected_result = expected[index % len(expected)]
         result = agent.predict(entry["state"], entry["questions"])
         stable &= result == expected_result
+        if cache is not None:
+            cache_counts.append(len(cache._models))
+            assert len(cache._models) <= cache.capacity
         if (index + 1) % 10 == 0:
             memory_samples.append(process.memory_info().rss)
     elapsed = time.perf_counter() - started
@@ -140,6 +150,8 @@ def main():
         and stable,
         stability={
             "calls": a.repeats,
+            "shape_cache_capacity": cache.capacity if cache else 0,
+            "maximum_cached_instances": max(cache_counts, default=0),
             "seconds": elapsed,
             "rounded_public_results_identical": stable,
             "rss_before": rss_before,
@@ -148,6 +160,9 @@ def main():
             "memory_note": "Process RSS includes Core ML/framework caches; not an active-tensor allocator measurement",
         },
     )
+    agent.__exit__(None, None, None)
+    assert cache is None or not cache._models
+    report["cache_released_on_close"] = True
     save(a.output, report)
     print(
         f"FINAL: {agreements}/{total}, probability drift {max_error:.6g}, stable={stable}",

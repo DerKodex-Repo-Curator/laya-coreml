@@ -1,0 +1,28 @@
+{
+  "upstream_revision": "ffc142012af63d015fa19f05f29f9c5ff329a2cc",
+  "package_version": "0.4.0",
+  "published": false,
+  "native_source_sha256": "9f16a897b0f5ed642ac3c4919ef899f9375771863cd60822d60148b3537913f3",
+  "artifacts_sha256": {
+    "laya_coreml-0.4.0-py3-none-any.whl": "4bd26a3adcd19b98880c3f3d49a722d2ddafcf30d52e39f80fb62661d61290e4",
+    "laya_coreml-0.4.0.tar.gz": "d9d7e2539e456f76bea45aa04d89f7777d456f8bcb25dc85988beaef1304ba38"
+  },
+  "full_tests": {
+    "passed": 334,
+    "skipped": 1,
+    "skip_reason": "Real LlamaIndex optional dependency absent from base environment; both selector tests separately passed in actual dependency environment",
+    "log": "/tmp/coreml-v0412-reuse-final-tests.log"
+  },
+  "strict_twine": "passed",
+  "twine_log": "/tmp/laya-v0412-final-twine.log",
+  "offline_installed_wheel": "wheel-v0412-adaptive-smoke.json",
+  "installed_source_matches_checkout": true,
+  "real_optional_frameworks": "v0412-real-integrations-wheel.json",
+  "official_sdk_http": {
+    "extended_tournament": "passed",
+    "strict": "passed",
+    "auth_and_limits": "passed",
+    "log": "/tmp/laya-v0412-final-coreml-sdk.log"
+  },
+  "scope": "Local macOS verification; no claim that remote CI has run and no release/push performed"
+}

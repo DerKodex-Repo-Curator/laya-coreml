@@ -118,3 +118,100 @@ python -m benchmarks.reference --upstream .upstream --model-root /path/to/origin
 The exact reference dependencies are recorded in the generated JSON. They are
 separate from the pinned export environment; Transformers is not a runtime or
 export dependency of laya-coreml.
+
+## Adaptive native batch bundles (unreleased v0.4.12 migration)
+
+A fixed B=1 graph cannot execute several question rows together. Export multiple
+physical batch sizes from exactly the same checkpoint, then combine them locally:
+
+```bash
+python -m laya_coreml convert SOURCE exports/b1 --batch-size 1
+python -m laya_coreml convert SOURCE exports/b2 --batch-size 2
+python -m laya_coreml convert SOURCE exports/b4 --batch-size 4
+python -m laya_coreml convert SOURCE exports/b16 --batch-size 16
+python -m laya_coreml batch-bundle exports/adaptive exports/b1 exports/b2 exports/b4 exports/b16
+```
+
+Load `exports/adaptive` with the ordinary `load()` or `Agent` API. The runtime
+selects the smallest available graph that fits the remaining logical rows, using
+the largest graph for full chunks. A short final chunk can use a smaller graph.
+The logical `predict_batch(batch_size=...)` control still counts states exactly
+as upstream does. Graph selection changes only native tensor execution.
+
+The assembler checks source weight hashes, host config and tokenizer bytes,
+precision, attention implementation and shape limits. Only batch capacity may
+differ. It rejects duplicate capacities, incompatible exports and an existing
+output directory. It copies model packages, produces a fresh file inventory and
+does not carry old validation reports or publication metadata into the result.
+It does not upload or publish the bundle.
+
+Additional graphs load on first use and stay resident until the agent is released
+or its context exits. Warm all expected request shapes before measuring steady
+state. Storage and resident memory grow with the selected graph set; this is a
+tradeoff, not weight compression. Single-graph bundles keep their existing path.
+
+The English migration experiment uses B=1/2/4/16. B=4 alone wastes work for the
+two-row windows produced by the default long-text scanner; including B=2 avoids
+that regression without changing the window policy. Qualification of the full
+three-checkpoint matrix and clean-wheel validation remains part of migration
+acceptance; do not treat composition alone as a validated release artifact.
+
+
+Ordinary Core ML agents now retain up to four additional execution instances,
+keyed by graph and every input tensor shape. Each physical graph uses its already
+loaded instance for its first/current shape; only additional shapes need extra
+instances. This avoids repeated expensive
+reshapes when requests alternate between sequence lengths. `shape_cache_size=0`
+on `Agent` or `load` disables this cache; accepted capacities are 0–32. The
+frequency-based cache limit applies across all batch graphs within an agent, not separately per graph.
+Prediction and eviction are serialized within the cache, and leaving the agent's
+context manager releases the cached instances. This improves repeated mixed-shape
+latency at the cost of additional resident model memory; it does not cache answers,
+reduce input lengths, or change numeric precision. Cold misses and workloads with
+more shapes than the configured capacity can still incur model-loading/reshape
+cost. Long-tail misses use the original graph until their aged usage frequency
+exceeds a cached shape, preventing reload thrashing. Fixed-shape ANE agents do
+not use this ordinary Core ML cache.
+
+New enumerated exports include 48, 80 and 112 token shapes in addition to the
+existing sequence-length choices. This reduces unnecessary padding for short
+batches; existing bundles retain their recorded shape sets. Do not assemble old
+and new shape sets into one adaptive bundle: export all capacities consistently.
+
+
+For strict FP32 qualification, export every capacity with `--precision float32`.
+The local qualification paths are `models/v0412/MODEL-fp32-bB-dense` and the
+assembled `models/v0412/MODEL-fp32-dense-adaptive`, where MODEL is `laya`,
+`laya-multilingual` or `laya-typed-decisions`, and B is 1, 2, 4 or 16. Use source
+weights in `../laya-mlx/models/MODEL`, pinned by the benchmark manifests. Use
+empty output directories: the converter and assembler refuse to overwrite them.
+The same recipe with `--precision float16` and `fp16` in the path creates the
+reduced-precision variant. Existing Hub bundles are not silently replaced.
+
+From the sibling MLX repository, `python -m benchmarks.qualification` performs
+full-reference and repeated-call validation before timing all three backends
+sequentially. It checks checkpoint/input hashes and explicitly disables upstream
+AMP for FP32 comparison. Its final output comparison uses 0.0001 for FP32 public
+floats, exact non-float values, and 0.02 for reduced precision. Raw tensor checks
+retain their separate original tolerances. No finite suite proves equivalence
+for every possible request.
+
+The conversion environment deliberately pins PyTorch 2.7; do not use it as the
+upstream performance baseline. The final qualification driver invokes upstream
+with the sibling MLX reference environment (PyTorch 2.14) and checks its version
+against `reference-v0412-fp32-torch214.json`. Native Core ML inference still runs
+in its own environment and requires no PyTorch dependency in an installed wheel.
+
+With the two sibling repositories and their validated development environments,
+regenerate the final golden from this Core ML repository with:
+
+```bash
+../laya-mlx/.venv/bin/python -m benchmarks.reference \
+  --upstream .upstream --model-root ../laya-mlx/models \
+  --output benchmarks/results/reference-v0412-fp32-torch214.json
+```
+
+Then run `.venv/bin/python -m benchmarks.qualification` from `../laya-mlx`.
+For an alternating-order performance repeat, run
+`.venv/bin/python -m benchmarks.paired_features --directory benchmarks/results/v0412-final-paired`
+there after all other accelerator jobs finish.

@@ -1,10 +1,13 @@
 ![Laya Core ML playing Snake with real local model probabilities](https://raw.githubusercontent.com/mizorewww/laya-coreml/main/docs/assets/snake-demo.gif)
 
-Version **0.4.0** aligns the host inference contract directly with official Laya
-**v0.4.1** (`1adc59f`), replacing the earlier selective port. Batch/long-text
-prediction, hooks, structured decisions, calibration, HTTP/MCP, evaluation and Router behavior now
-share the official host semantics. See the [migration guide](https://github.com/mizorewww/laya-coreml/blob/main/docs/MIGRATION_0_4.md)
-for changed defaults, validation evidence and the remaining Core ML boundaries.
+Version **0.5.0** targets official Laya **v0.4.12**
+(`ffc142012af63d015fa19f05f29f9c5ff329a2cc`). Batch/long-text prediction, hooks,
+structured decisions, calibration, HTTP/MCP, evaluation, Router and optional
+integrations share the official host contracts. Native adaptive batch graphs and
+a bounded shape cache improve Core ML execution without changing host results.
+Existing Hub bundles retain their recorded graph capacities; adaptive bundles
+are separate artifacts. See the [migration guide](docs/MIGRATION_0_4.md)
+and [qualification status](docs/UPSTREAM_0412_PROGRESS.json).
 
 # Laya-CoreML
 
@@ -172,11 +175,11 @@ Not an official Convai Innovations or Apple release. See
 [NOTICE](https://github.com/mizorewww/laya-coreml/blob/main/NOTICE).
 
 
-## Official v0.4.1 host compatibility (v0.4.0)
+## Previous v0.4.1 host compatibility (v0.4.0 record)
 
-This release ports host behavior directly from upstream `1adc59f` to Core ML. Model
+The previous migration ported host behavior directly from upstream `1adc59f` to Core ML. Model
 weights remain separate downloads. The runtime still needs no PyTorch, Transformers,
-or MLX. Optional temperature fitting, training helpers and conversion use PyTorch.
+or MLX. Optional temperature fitting and conversion use PyTorch; training uses official Laya.
 [Migration and complete compatibility scope](https://github.com/mizorewww/laya-coreml/blob/main/docs/MIGRATION_0_4.md).
 
 ```python

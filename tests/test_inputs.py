@@ -96,3 +96,15 @@ def test_known_failed_gpu_configuration_is_rejected_before_loading(tmp_path):
 def test_enumerated_shapes_select_next_bucket():
     batch = collate_items([item(65)], 0, shape=shape(lengths=[16, 32, 64, 96, 128]))
     assert batch["input_ids"].shape[1] == 96
+
+
+def test_minimum_length_preserves_real_token_mask():
+    # A logical batch may span multiple fixed-B graph calls. Keeping their
+    # shapes equal must not make the extra padding visible to attention.
+    batch = collate_items([item(17)], 9, shape=shape(), minimum_length=65)
+    assert batch["input_ids"].shape[1] == 80
+    assert batch["attention_mask"][0].sum() == 17
+    assert (batch["attention_mask"][0, 17:] == 0).all()
+    assert (batch["input_ids"][0, 17:] == 9).all()
+    with pytest.raises(ValueError):
+        collate_items([item(17)], 9, shape=shape(), minimum_length=129)

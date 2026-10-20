@@ -36,7 +36,6 @@ from .common import (
     confidence_from_probs,
     encode_text,
     render_criterion,
-    render_options,
     resolve_lang_temperatures,
     serialize_state,
     state_room,
@@ -446,7 +445,7 @@ class RuntimeMixin(HookRegistry):
                 return_truncation_stats=True,
                 return_layout=self.parallel_options,
             )
-            n_opts = len(render_options(q))
+            n_opts = stats["options"]
             if len(markers) != n_opts:
                 # The markers are placed at absolute positions and `build_sequence` then drops the
                 # ones past `max_len`, so this is about the question fitting in the sequence --
@@ -1379,10 +1378,13 @@ class RuntimeMixin(HookRegistry):
 
         rows = len(batch["input_ids"])
         width = batch["marker_pos"].shape[1]
+        select = getattr(self, "_select_graph", None)
         logits, actions = [], []
-        for start in range(0, rows, self.shape["batch_size"]):
+        start = 0
+        while start < rows:
+            shape, forward = select(rows - start) if select else (self.shape, self.forward)
             items = []
-            for row in range(start, min(rows, start + self.shape["batch_size"])):
+            for row in range(start, min(rows, start + shape["batch_size"])):
                 n = int(batch["attention_mask"][row].sum())
                 count = int(batch["marker_mask"][row].sum())
                 item = {
@@ -1393,18 +1395,85 @@ class RuntimeMixin(HookRegistry):
                 if "option_ids" in batch:
                     item["layout"] = {k: batch[k][row, :n] for k in ("position_ids", "option_ids")}
                 items.append(item)
-            out, act = self.forward(export_batch(items, self.tok.pad_token_id, shape=self.shape))
+            out, act = forward(
+                export_batch(
+                    items,
+                    self.tok.pad_token_id,
+                    shape=shape,
+                    minimum_length=batch["input_ids"].shape[1],
+                )
+            )
             out, act = np.asarray(out), np.asarray(act)
             if not np.isfinite(out).all() or not np.isfinite(act).all():
                 raise FloatingPointError("Non-finite Core ML outputs")
             logits.append(out[: len(items), :width])
             act = np.exp(act[: len(items)] - act[: len(items)].max(axis=-1, keepdims=True))
             actions.append(act / act.sum(axis=-1, keepdims=True))
+            start += len(items)
         return np.concatenate(logits), np.concatenate(actions)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.model = None
+        if hasattr(self, "_batch_models"):
+            self._batch_models.clear()
+        if hasattr(self, "_shape_cache"):
+            self._shape_cache.clear()
         gc.collect()
         return False
+
+    @property
+    def backend(self) -> str:
+        """Native runtime identity, rather than a PyTorch backend name."""
+        return "coreml"
+
+    @property
+    def backend_object(self):
+        """No official PyTorch Backend object is installed on a native agent."""
+        return None
+
+    def set_backend(self, name: str = "auto", strict: bool = False, **options) -> str:
+        raise NotImplementedError(
+            "Runtime backend switching requires official Laya. Construct a new native agent "
+            "to change its execution settings."
+        )
+
+    def accelerate(self, use_graphs: bool = True, strict: bool = False):
+        """The upstream TileLang fast path is unavailable on this native runtime."""
+        if strict:
+            raise RuntimeError("laya fast path needs a CUDA device")
+        return False
+
+    def deaccelerate(self):
+        """No TileLang backend is installed; native execution remains active."""
+        return None
+
+    def dtype_for(self, rows: int):
+        """Native dtype / export precision; no row-gated PyTorch autocast occurs."""
+        return np.dtype(self.manifest["precision"])
+
+    WARMUP_SHAPES = ((1, 64, 3), (4, 128, 5))
+
+    def warmup(self, shapes=None) -> float:
+        """Warm native forwards on upstream's synthetic shapes, without hooks.
+
+        Return elapsed seconds. Tensor transport is native; the shape defaults,
+        token cap and fill values follow official v0.4.12 Agent.warmup.
+        Explicit calls propagate graph or compilation errors.
+        """
+        max_len = int(self.cfg.get("max_len", 512))
+        fill = self.tok.cls_token_id or 0
+        started = time.perf_counter()
+        for rows, tokens, markers in self.WARMUP_SHAPES if shapes is None else shapes:
+            tokens = max(markers + 2, min(int(tokens), max_len))
+            self._forward(
+                {
+                    "input_ids": np.full((rows, tokens), fill, dtype=np.int64),
+                    "attention_mask": np.ones((rows, tokens), dtype=np.int64),
+                    "marker_pos": np.tile(np.arange(1, markers + 1), (rows, 1)),
+                    "marker_mask": np.ones((rows, markers), dtype=bool),
+                    "qtype": np.zeros(rows, dtype=np.int64),
+                }
+            )
+        return time.perf_counter() - started
 
     predict = system_one

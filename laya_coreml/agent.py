@@ -2,6 +2,7 @@
 
 import json
 import os
+import threading
 
 import numpy as np
 
@@ -15,6 +16,11 @@ COMPUTE_UNITS = {"all": "ALL", "cpu": "CPU_ONLY", "cpu_gpu": "CPU_AND_GPU", "cpu
 
 
 class Agent(RuntimeMixin):
+    @property
+    def config(self):
+        """Checkpoint metadata for upstream hooks, including option layout."""
+        return self.cfg
+
     def __init__(
         self,
         model_id_or_path="convaiinnovations/laya",
@@ -41,6 +47,7 @@ class Agent(RuntimeMixin):
         compute_units="cpu_gpu",
         allow_unvalidated_gpu=False,
         local_files_only=False,
+        shape_cache_size=4,
     ):
         if (
             fast
@@ -56,6 +63,9 @@ class Agent(RuntimeMixin):
             if device not in ("cpu", "mps"):
                 raise ValueError("Core ML device must be cpu or mps; use compute_units for ANE")
             compute_units = "cpu" if device == "cpu" else "cpu_gpu"
+        from .shape_cache import ShapeCache
+
+        self._shape_cache = ShapeCache(shape_cache_size)
         self.model_id = self.model_id_or_path = str(model_id_or_path)
         self.subfolder, self.revision = subfolder, None
         if compute_units not in COMPUTE_UNITS:
@@ -75,6 +85,11 @@ class Agent(RuntimeMixin):
         if self.manifest.get("format") != "laya-coreml" or self.manifest.get("format_version") != 1:
             raise ValueError("Unsupported Core ML export format")
         self.shape = self.manifest["shape"]
+        from .batching import variant_shapes
+
+        self._batch_variants = variant_shapes(self.manifest, self.model_dir)
+        self._batch_models = {}
+        self._batch_lock = threading.RLock()
         if (
             compute_units == "cpu_gpu"
             and self.shape["flexible"]
@@ -120,8 +135,35 @@ class Agent(RuntimeMixin):
             compute_units=getattr(ct.ComputeUnit, COMPUTE_UNITS[compute_units]),
         )
 
+    def _select_graph(self, rows):
+        """Keep host batching semantics; select only the physical tensor graph."""
+        variants = getattr(self, "_batch_variants", {})
+        if not variants or rows <= self.shape["batch_size"]:
+            return self.shape, self.forward
+        capacities = sorted(variants)
+        capacity = next((n for n in capacities if n >= rows), capacities[-1])
+        shape, path = variants[capacity]
+        with self._batch_lock:
+            if capacity not in self._batch_models:
+                import coremltools as ct
+
+                self._batch_models[capacity] = ct.models.MLModel(
+                    str(package_for_coreml(path)),
+                    compute_units=getattr(ct.ComputeUnit, COMPUTE_UNITS[self.compute_units]),
+                )
+            model = self._batch_models[capacity]
+
+        def predict(batch):
+            return self._graph_outputs(model, batch)
+
+        return shape, predict
+
     def forward(self, batch):
-        outputs = self.model.predict(batch)
+        return self._graph_outputs(self.model, batch)
+
+    def _graph_outputs(self, model, batch):
+        cache = getattr(self, "_shape_cache", None)
+        outputs = cache.predict(model, batch) if cache is not None else model.predict(batch)
         return np.asarray(outputs["logits"], np.float32), np.asarray(
             outputs["action_logits"], np.float32
         )
@@ -176,6 +218,7 @@ def load(
     local_files_only=False,
     compute_units=None,
     allow_unvalidated_gpu=False,
+    shape_cache_size=4,
 ):
     from .revisions import snapshot_revision, verify_digests
     from .router import resolve_model_spec
@@ -228,6 +271,7 @@ def load(
             device=device,
             compute_units=compute_units or "cpu_gpu",
             allow_unvalidated_gpu=allow_unvalidated_gpu,
+            shape_cache_size=shape_cache_size,
             expected_sha256={},
             **host,
         )

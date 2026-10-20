@@ -1,0 +1,408 @@
+{
+  "environment": {
+    "created_at": "2026-10-19T13:22:48.160523+00:00",
+    "chip": "Apple M3 Max",
+    "memory_bytes": 137438953472,
+    "os": "macOS-27.2-arm64-arm-64bit",
+    "python": "3.12.13",
+    "packages": {
+      "coremltools": "9.0",
+      "numpy": "2.1.3",
+      "torch": "2.7.0",
+      "tokenizers": "0.23.2"
+    },
+    "source_sha256": "8c52fbd3378e6059299223c765cc6f2db06aed04661eeaba7b463b281da72bb8"
+  },
+  "model": "laya-typed-decisions",
+  "export": {
+    "format": "laya-coreml",
+    "format_version": 1,
+    "option_layout": "sequential",
+    "source": "../laya-mlx/models/laya-typed-decisions",
+    "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+    "source_weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+    "precision": "float16",
+    "attention": "sdpa",
+    "attention_mask_construction": "integer_positions_v2",
+    "minimum_deployment_target": "macOS15 / iOS18",
+    "shape": {
+      "batch_size": 1,
+      "max_length": 1024,
+      "min_length": 16,
+      "default_length": 128,
+      "max_options": 32,
+      "flexible": true,
+      "mode": "enumerated",
+      "lengths": [
+        16,
+        32,
+        64,
+        96,
+        128,
+        192,
+        256,
+        384,
+        512,
+        768,
+        1024
+      ]
+    },
+    "versions": {
+      "coremltools": "9.0",
+      "torch": "2.7.0",
+      "numpy": "2.1.3"
+    },
+    "conversion_seconds": 13.287966083998981,
+    "files": {
+      "batches/b16/model.mlpackage/Data/com.apple.CoreML/model.mlmodel": {
+        "bytes": 610250,
+        "sha256": "93a08f8ea4ea03ea7b81cb9f6cead4ce77fd87ab4ffa1768ef5bedd0171c4509"
+      },
+      "batches/b16/model.mlpackage/Data/com.apple.CoreML/weights/weight.bin": {
+        "bytes": 842886144,
+        "sha256": "a1b1c2b76e88646ad9c9387853317cda529fbda7108567e95a93169ad683db76"
+      },
+      "batches/b16/model.mlpackage/Manifest.json": {
+        "bytes": 617,
+        "sha256": "c69efca672e0ef01dd7d2cc6c73cbf1aa884ffd565fb460cd7c857f1cba7b39f"
+      },
+      "batches/b2/model.mlpackage/Data/com.apple.CoreML/model.mlmodel": {
+        "bytes": 610250,
+        "sha256": "3a5bd1a618a56a1e496bb8d29ae8545c7448b359e1b8c952223aab39cb4b6c31"
+      },
+      "batches/b2/model.mlpackage/Data/com.apple.CoreML/weights/weight.bin": {
+        "bytes": 842886144,
+        "sha256": "a1b1c2b76e88646ad9c9387853317cda529fbda7108567e95a93169ad683db76"
+      },
+      "batches/b2/model.mlpackage/Manifest.json": {
+        "bytes": 617,
+        "sha256": "53e201507f5a0f50cce892fd1d9687d27d9bc0d8bf189897cd49510246f78957"
+      },
+      "batches/b4/model.mlpackage/Data/com.apple.CoreML/model.mlmodel": {
+        "bytes": 610250,
+        "sha256": "d5f65d8dd0494113189794202ec1ad9e6907ee28eb396c070300020976d683bd"
+      },
+      "batches/b4/model.mlpackage/Data/com.apple.CoreML/weights/weight.bin": {
+        "bytes": 842886144,
+        "sha256": "a1b1c2b76e88646ad9c9387853317cda529fbda7108567e95a93169ad683db76"
+      },
+      "batches/b4/model.mlpackage/Manifest.json": {
+        "bytes": 617,
+        "sha256": "770491cbba5ac65125282531a16c3f0a687974b050a59127838beb104f754dd7"
+      },
+      "encoder/config.json": {
+        "bytes": 2084,
+        "sha256": "5268d24ad3b77c8151de5dcb0762ba4391619aad9ab0bda33e36fb083cfeae6d"
+      },
+      "model.mlpackage/Data/com.apple.CoreML/model.mlmodel": {
+        "bytes": 610250,
+        "sha256": "159e564c3238da68f9f32087aa909dca8ade6e56ea49d8ba3d8ba7bc868398d8"
+      },
+      "model.mlpackage/Data/com.apple.CoreML/weights/weight.bin": {
+        "bytes": 842886144,
+        "sha256": "a1b1c2b76e88646ad9c9387853317cda529fbda7108567e95a93169ad683db76"
+      },
+      "model.mlpackage/Manifest.json": {
+        "bytes": 617,
+        "sha256": "e6d6d52b97ad2877cd3670e932a53aa0ad0b1a57504dcb8e8add911ebd391d20"
+      },
+      "rl_agent_config.json": {
+        "bytes": 847,
+        "sha256": "ebf0cd524d92342a6be5e48e9fca3d7c2babfb5a56ccd79d2171ef5d8c7f7be8"
+      },
+      "tokenizer/tokenizer.json": {
+        "bytes": 3583228,
+        "sha256": "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30"
+      },
+      "tokenizer/tokenizer_config.json": {
+        "bytes": 337,
+        "sha256": "08d4cf3ac4dca381759441b85b91a6d40e688471dcd33d15d6649eb0a9a854d1"
+      }
+    },
+    "batch_variants": [
+      {
+        "package": "batches/b2/model.mlpackage",
+        "shape": {
+          "batch_size": 2,
+          "max_length": 1024,
+          "min_length": 16,
+          "default_length": 128,
+          "max_options": 32,
+          "flexible": true,
+          "mode": "enumerated",
+          "lengths": [
+            16,
+            32,
+            64,
+            96,
+            128,
+            192,
+            256,
+            384,
+            512,
+            768,
+            1024
+          ]
+        }
+      },
+      {
+        "package": "batches/b4/model.mlpackage",
+        "shape": {
+          "batch_size": 4,
+          "max_length": 1024,
+          "min_length": 16,
+          "default_length": 128,
+          "max_options": 32,
+          "flexible": true,
+          "mode": "enumerated",
+          "lengths": [
+            16,
+            32,
+            64,
+            96,
+            128,
+            192,
+            256,
+            384,
+            512,
+            768,
+            1024
+          ]
+        }
+      },
+      {
+        "package": "batches/b16/model.mlpackage",
+        "shape": {
+          "batch_size": 16,
+          "max_length": 1024,
+          "min_length": 16,
+          "default_length": 128,
+          "max_options": 32,
+          "flexible": true,
+          "mode": "enumerated",
+          "lengths": [
+            16,
+            32,
+            64,
+            96,
+            128,
+            192,
+            256,
+            384,
+            512,
+            768,
+            1024
+          ]
+        }
+      }
+    ]
+  },
+  "reference_sha256": "efc2dc32ce042142210510cef0121c619bcfe0abb541119ea1ccb17563d13de4",
+  "compute_units": "cpu_gpu",
+  "load_seconds": 4.32974537500013,
+  "cases": [
+    {
+      "name": "email",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0004383384901024412,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.009122848510742188,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "en",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0005584718161167346,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.0030851364135742188,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "zh",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0012654801311268171,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.004552602767944336,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "de",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0010281030008345848,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.00938880443572998,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "fr",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0005992100373963805,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.004271745681762695,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "es",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0006989959579828398,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.005222141742706299,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "hi",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0027266347551877512,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.014497071504592896,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "ja",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0011093933803167921,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.00858539342880249,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "ru",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.000542210239660168,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.0062351226806640625,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "empty_state",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.00042186348091610704,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.004932820796966553,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "long",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.000501763944237843,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.0039441585540771484,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "conversation",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0002725624251749825,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.0059051513671875,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "mask_literals",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0004923618393770646,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.026926040649414062,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "many_questions",
+      "questions": 20,
+      "tokens_equal": true,
+      "argmax_agreements": 20,
+      "probability_max_abs_error": 0.00043842444596942087,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.009122490882873535,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "structured",
+      "questions": 3,
+      "tokens_equal": true,
+      "argmax_agreements": 3,
+      "probability_max_abs_error": 0.0006054809527535343,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.004496932029724121,
+      "public_result_equal": false,
+      "public_result_differences": []
+    },
+    {
+      "name": "twenty_options",
+      "questions": 1,
+      "tokens_equal": true,
+      "argmax_agreements": 1,
+      "probability_max_abs_error": 7.134581690990995e-05,
+      "action_probability_max_abs_error": 0.0,
+      "logits_max_abs_error": 0.005130648612976074,
+      "public_result_equal": true,
+      "public_result_differences": []
+    }
+  ],
+  "questions": 63,
+  "argmax_agreements": 63,
+  "probability_max_abs_error": 0.0027266347551877512,
+  "action_probability_max_abs_error": 0.0,
+  "probability_tolerance": 0.02,
+  "passed": true,
+  "stability": {
+    "calls": 100,
+    "seconds": 22.755738249999922,
+    "rounded_public_results_identical": true,
+    "rss_before": 3272998912,
+    "rss_after": 3275849728,
+    "rss_samples": [
+      3272998912,
+      3272982528,
+      3275112448,
+      3275571200,
+      3275603968,
+      3275685888,
+      3275751424,
+      3275784192,
+      3275800576,
+      3275767808,
+      3275849728
+    ],
+    "memory_note": "Process RSS includes Core ML/framework caches; not an active-tensor allocator measurement"
+  }
+}

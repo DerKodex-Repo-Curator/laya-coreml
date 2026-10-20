@@ -3,10 +3,10 @@
 import numpy as np
 
 
-def collate_items(items, pad_id, *, shape, pad_to_multiple=16, max_length=None):
+def collate_items(items, pad_id, *, shape, pad_to_multiple=16, max_length=None, minimum_length=0):
     if not items or len(items) > shape["batch_size"]:
         raise ValueError("Batch must contain 1..exported batch_size questions")
-    length = max(len(item["ids"]) for item in items)
+    length = max(minimum_length, max(len(item["ids"]) for item in items))
     limit = shape["max_length"]
     if length > limit:
         raise ValueError(f"Input has {length} tokens, but this export supports at most {limit}")
