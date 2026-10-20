@@ -96,10 +96,10 @@ Adaptive graphs load lazily. The runtime's default cache retains at most four
 extra execution instances, never answers. This improves repeated-shape latency
 at a substantial resident-memory cost; `shape_cache_size=0` disables extra instances.
 Cold/new shapes can be slower. FP16 is not numerically identical to FP32.
-The matching FP32 benchmark recorded Core ML process peak RSS up to 13.51 GiB;
+The 0.5.1 FP32 benchmark recorded Core ML process peak RSS of 5.10–8.77 GiB;
 that is not a full unified/device memory measure or an FP16 memory estimate.
 
-[Runtime and qualification evidence](https://github.com/mizorewww/laya-coreml/blob/main/docs/QUALIFICATION_0_4_12.md).
+[Runtime and qualification evidence](https://github.com/mizorewww/laya-coreml/blob/main/docs/QUALIFICATION_0_5_1.md).
 Original single-graph Hub repositories remain unchanged.
 '''
             (output / "README.md").write_text(card)

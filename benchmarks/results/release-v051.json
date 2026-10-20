@@ -7,7 +7,7 @@
   },
   "tests_passed": 337,
   "strict_twine": "passed",
-  "publication_status": "awaiting_tag_pipeline",
+  "publication_status": "published_and_verified",
   "ci_run": "https://github.com/mizorewww/laya-coreml/actions/runs/39353060693",
   "additional_native_ci": "https://github.com/mizorewww/laya-coreml/actions/runs/39353001593",
   "real_models": [
@@ -27,5 +27,28 @@
   "upstream_timing_test_note": "One earlier compiled-cache CI attempt failed an unchanged upstream 100 ms idle-unload assertion; native conversion tests passed. The same assertion passed on current CI and the failed-job rerun; no timing thresholds were changed.",
   "offline_wheel_smoke": "wheel-v051-smoke.json",
   "offline_packaged_real_models": 3,
-  "installed_native_source_matches": true
+  "installed_native_source_matches": true,
+  "release_commit": "f950093ebe3d137e6425377d6db295d8c78ecb11",
+  "github_release": "https://github.com/mizorewww/laya-coreml/releases/tag/v0.5.1",
+  "pypi_project": "https://pypi.org/project/laya-coreml/0.5.1/",
+  "public_artifacts": [
+    {
+      "filename": "laya_coreml-0.5.1-py3-none-any.whl",
+      "sha256": "428bb8f9a007de2fb1ccd77a2a06b5cd6f3f1db8ded68082c9986eee99c89e73",
+      "pypi_url": "https://files.pythonhosted.org/packages/bc/35/6da9e3d9ab26aac26d639ce78e6d22d2621dc71745158699e80380bd9242/laya_coreml-0.5.1-py3-none-any.whl",
+      "github_url": "https://github.com/mizorewww/laya-coreml/releases/download/v0.5.1/laya_coreml-0.5.1-py3-none-any.whl"
+    },
+    {
+      "filename": "laya_coreml-0.5.1.tar.gz",
+      "sha256": "b1d167f196b1bf5f6fdc19498ef55016957f40380e335fd8ebe2f331a734d6fe",
+      "pypi_url": "https://files.pythonhosted.org/packages/bb/da/4a0669784909c9a11352034baddaeeee384e84e93d6e12c4aba16ca7ad11/laya_coreml-0.5.1.tar.gz",
+      "github_url": "https://github.com/mizorewww/laya-coreml/releases/download/v0.5.1/laya_coreml-0.5.1.tar.gz"
+    }
+  ],
+  "public_wheel_source_matches": true,
+  "public_install_smoke": "pypi-v051-smoke.json",
+  "hub_publication_receipt": "hub-v051-release.json",
+  "hub_public_download_smoke": "hub-v051-public-smoke.json",
+  "published_model_repositories": 6,
+  "release_run": "https://github.com/mizorewww/laya-coreml/actions/runs/39353986417"
 }

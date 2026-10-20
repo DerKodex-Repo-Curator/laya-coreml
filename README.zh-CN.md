@@ -23,6 +23,8 @@ GIF 保持录制时的 **1× 速度**。代码提供确定性的路径特征和�
 结构化决策、hooks、校准、评测、Router、HTTP/MCP 和框架集成。341 项公共接口审计、
 真实 logits 校准兼容检查，以及真实可选框架类型检查已通过；最终原生性能与安装包验收
 见[进度和证据](docs/UPSTREAM_0412_PROGRESS.json)。本次发行版本为 0.5.1。
+六个自适应 FP16/FP32 模型、固定 revision 和安装示例见 [0.5.1 发布说明](docs/RELEASE_0_5_1.md)。
+下方通用决策示例使用完整上下文的自适应 CPU/GPU 模型；性能以该发行版验收报告为准。
 
 Core ML 支持按 B=1/2/4/16 组合本地模型包，并为额外输入形状保留有上限的执行实例。
 首个形状复用已有实例；长尾形状按使用频率接纳，避免反复重载。`shape_cache_size=0`
@@ -51,7 +53,7 @@ laya-coreml-snake --model ./models/snake
 ```python
 import laya_coreml as laya
 
-agent = laya.load("aac6fef/laya-multilingual-coreml-ane")
+agent = laya.load("aac6fef/laya-multilingual-coreml-adaptive-fp16")
 result = agent.predict(
     "客户要求退还重复扣除的款项。",
     {

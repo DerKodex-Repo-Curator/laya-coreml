@@ -53,3 +53,5 @@ Cold model loading and unseen-shape initialization are outside steady-state timi
 include environment, precision, input/checkpoint/source hashes and every timing sample.
 The earlier v0.4.12 report remains development evidence for the previous cache loader.
 Final distribution and public-install receipts are in `benchmarks/results/release-v051.json`.
+
+The unchanged upstream idle-window timing test was also reproduced directly against the original upstream code on the same macOS CI runner during MLX post-release checks. See [the retained comparison](https://github.com/mizorewww/laya-mlx/blob/main/docs/CI_TIMING.md). This test instability is documented separately from the successful Core ML release pipeline and real-model qualification.

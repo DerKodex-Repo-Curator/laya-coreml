@@ -665,6 +665,17 @@
       "status": "All output rows passed; four sequential Core ML P50 regressions retained and investigated in paired confirmation"
     },
     "final_coreml_paired": {
+      "report": "https://github.com/mizorewww/laya-mlx/blob/main/benchmarks/results/v051-compiled-paired/paired-summary.json",
+      "version": "0.5.1",
+      "workloads": 18,
+      "p50_wins": 18,
+      "p95_wins": 16,
+      "mean_throughput_wins": 18,
+      "output_comparisons": "all passed",
+      "all_runs_retained": true
+    },
+    "final_package_receipt": "benchmarks/results/v0412-package-gates.json",
+    "historical_pre_release_coreml_paired": {
       "report": "laya-mlx/benchmarks/results/v0412-final-paired/paired-summary.json",
       "upstream_torch": "2.14.0",
       "order": [
@@ -684,7 +695,16 @@
       ],
       "all_runs_retained": true
     },
-    "final_package_receipt": "benchmarks/results/v0412-package-gates.json"
+    "released_runtime_qualification": {
+      "version": "0.5.1",
+      "tests_passed": 337,
+      "release_receipt": "benchmarks/results/release-v051.json",
+      "qualification": "docs/QUALIFICATION_0_5_1.md",
+      "p50_wins": 18,
+      "p95_wins": 16,
+      "mean_throughput_wins": 18,
+      "note": "Earlier development measurements above are historical; this receipt and qualification describe the published compiled-instance runtime."
+    }
   },
   "test_adapter_boundaries": [
     "Namespace/import/mock rewriting only; expected host values unchanged",
@@ -695,24 +715,19 @@
   ],
   "remaining": [],
   "completion_claim": true,
-  "completion_scope": "Pinned upstream v0.4.12 applicable host API, native backend boundaries, local tests, finite real-model fidelity/stability and measured FP32 workloads; unpublished, no universal accuracy/performance claim.",
+  "completion_scope": "Pinned upstream v0.4.12 applicable host API, native backend boundaries, local and remote tests, finite real-model fidelity/stability, measured FP32 workloads, pushed source, verified GitHub/PyPI distribution and six public adaptive Hub artifacts; no universal accuracy/performance claim.",
   "qualification_report": "docs/QUALIFICATION_0_5_1.md",
   "limitations": [
     "Finite fixture parity is not universal model accuracy or calibrated-confidence quality",
-    "Core ML extra execution instances increase RSS; final FP32 feature run recorded 5.10\u201313.51 GiB process peak RSS, not a complete device-allocation measure",
+    "Core ML extra execution instances increase RSS; final FP32 feature run recorded 5.10\u20138.77 GiB process peak RSS, not a complete device-allocation measure",
     "Cold/unseen shapes, loading and long-tail misses are outside steady-state guarantees",
     "Shared desktop load varied; sequential Core ML regressions and alternating-order confirmation both retained",
-    "FP16 and fixed-shape ANE have separately documented precision/capacity boundaries",
-    "No remote CI, release, push or Hub artifact replacement performed"
+    "FP16 and fixed-shape ANE have separately documented precision/capacity boundaries"
   ],
-  "delivery_status": "release_in_progress",
+  "delivery_status": "published_and_verified",
   "release_version": "0.5.1",
-  "delivery_remaining": [
-    "Push migration and release commit",
-    "Pass remote CI",
-    "Publish and verify GitHub Release and PyPI artifacts"
-  ],
-  "release_status": "awaiting_publication",
+  "delivery_remaining": [],
+  "release_status": "published_and_verified",
   "failed_unpublished_tag": "v0.5.0",
   "release_receipt": "benchmarks/results/release-v051.json"
 }

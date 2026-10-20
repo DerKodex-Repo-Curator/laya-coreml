@@ -1,0 +1,21 @@
+{
+  "repository": "aac6fef/laya-coreml-adaptive-fp16",
+  "revision": "97bcf6b78e3489c1ebbd54001d637456f3eb381c",
+  "version": "0.5.1",
+  "module": "/tmp/laya-coreml-v0412-wheel/lib/python3.12/site-packages/laya_coreml/__init__.py",
+  "anonymous_public_download": true,
+  "matches_local_packaged_output": true,
+  "offline_repeat_calls": 3,
+  "batch_states": [
+    17,
+    2
+  ],
+  "warmup_passed": true,
+  "cached_reload_passed": true,
+  "offline_network_attempts": 0,
+  "loaded_batch_capacities": [
+    2,
+    4,
+    16
+  ]
+}

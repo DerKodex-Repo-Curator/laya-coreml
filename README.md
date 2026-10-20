@@ -6,7 +6,7 @@ structured decisions, calibration, HTTP/MCP, evaluation, Router and optional
 integrations share the official host contracts. Native adaptive batch graphs and
 a bounded shape cache improve Core ML execution without changing host results.
 Existing Hub bundles retain their recorded graph capacities; adaptive bundles
-are separate artifacts. See the [migration guide](docs/MIGRATION_0_4.md)
+are separate artifacts; the [0.5.1 release notes](docs/RELEASE_0_5_1.md) list all six FP16/FP32 bundles. See the [migration guide](docs/MIGRATION_0_4.md)
 and [qualification status](docs/UPSTREAM_0412_PROGRESS.json).
 
 # Laya-CoreML
@@ -50,6 +50,9 @@ speed; R resets; Q quits. First-time Core ML initialization can take tens of sec
 
 ## Ask for a decision
 
+The full-context adaptive CPU/GPU bundle supports general batch and long-text use.
+See the [0.5.1 model list and measured performance](docs/RELEASE_0_5_1.md).
+
 ```bash
 pip install laya-coreml
 ```
@@ -57,7 +60,7 @@ pip install laya-coreml
 ```python
 import laya_coreml as laya
 
-agent = laya.load("aac6fef/laya-multilingual-coreml-ane")
+agent = laya.load("aac6fef/laya-multilingual-coreml-adaptive-fp16")
 result = agent.predict(
     "The customer requests a refund of a duplicate payment.",
     {

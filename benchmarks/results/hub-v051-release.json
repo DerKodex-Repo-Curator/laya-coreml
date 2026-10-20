@@ -1,0 +1,62 @@
+[
+  {
+    "repository": "aac6fef/laya-coreml-adaptive-fp16",
+    "precision": "float16",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-coreml-adaptive-fp16",
+    "revision": "97bcf6b78e3489c1ebbd54001d637456f3eb381c",
+    "commit_url": "https://huggingface.co/aac6fef/laya-coreml-adaptive-fp16/commit/97bcf6b78e3489c1ebbd54001d637456f3eb381c",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  },
+  {
+    "repository": "aac6fef/laya-coreml-adaptive-fp32",
+    "precision": "float32",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-coreml-adaptive-fp32",
+    "revision": "974246b3a87d03e58cb6b95180ea349c2ec99f5a",
+    "commit_url": "https://huggingface.co/aac6fef/laya-coreml-adaptive-fp32/commit/974246b3a87d03e58cb6b95180ea349c2ec99f5a",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  },
+  {
+    "repository": "aac6fef/laya-multilingual-coreml-adaptive-fp16",
+    "revision": "d7927f83d2fd324b2e9cfed72cc2277e6a255387",
+    "commit_url": "https://huggingface.co/aac6fef/laya-multilingual-coreml-adaptive-fp16/commit/d7927f83d2fd324b2e9cfed72cc2277e6a255387",
+    "precision": "float16",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-multilingual-coreml-adaptive-fp16",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  },
+  {
+    "repository": "aac6fef/laya-multilingual-coreml-adaptive-fp32",
+    "revision": "0acafea451b2474e8ff15f310f5e07fcb45dc7a7",
+    "commit_url": "https://huggingface.co/aac6fef/laya-multilingual-coreml-adaptive-fp32/commit/0acafea451b2474e8ff15f310f5e07fcb45dc7a7",
+    "precision": "float32",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-multilingual-coreml-adaptive-fp32",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  },
+  {
+    "repository": "aac6fef/laya-typed-decisions-coreml-adaptive-fp16",
+    "revision": "bb04dc23c9f85e0402eddc785e54aa5054f07efe",
+    "commit_url": "https://huggingface.co/aac6fef/laya-typed-decisions-coreml-adaptive-fp16/commit/bb04dc23c9f85e0402eddc785e54aa5054f07efe",
+    "precision": "float16",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-typed-decisions-coreml-adaptive-fp16",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  },
+  {
+    "repository": "aac6fef/laya-typed-decisions-coreml-adaptive-fp32",
+    "revision": "62ab15fe7ad079134d82cced8feaa016f6404840",
+    "commit_url": "https://huggingface.co/aac6fef/laya-typed-decisions-coreml-adaptive-fp32/commit/62ab15fe7ad079134d82cced8feaa016f6404840",
+    "precision": "float32",
+    "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-typed-decisions-coreml-adaptive-fp32",
+    "remote_inventory_verified": true,
+    "verified_model_files": 16,
+    "verification_scope": "All manifest sizes and SHA256: Hub LFS metadata for large weights, downloaded bytes for small files; provenance/card/license/evidence bytes downloaded and compared."
+  }
+]

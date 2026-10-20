@@ -54,12 +54,13 @@
   ],
   "artifact_audit": "benchmarks/results/official-v041-artifact-audit.json",
   "real_model_validation": "benchmarks/results/v051-MODEL-PRECISION-validation.json",
-  "migration_status": "complete_local_qualification",
+  "migration_status": "published_and_verified",
   "progress_report": "docs/UPSTREAM_0412_PROGRESS.json",
   "qualification_report": "docs/QUALIFICATION_0_5_1.md",
   "public_api_audit": "docs/UPSTREAM_0412_API_AUDIT.json",
   "package_gates": "benchmarks/results/release-v051.json",
-  "release_status": "awaiting_publication",
+  "release_status": "published_and_verified",
   "release_version": "0.5.1",
-  "failed_unpublished_tag": "v0.5.0"
+  "failed_unpublished_tag": "v0.5.0",
+  "hub_release_receipt": "benchmarks/results/hub-v051-release.json"
 }
