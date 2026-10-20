@@ -1,0 +1,36 @@
+{
+  "status": "prepared_only_not_published",
+  "reason": "0.5.0 runtime failed the macOS release gate; model transfer stopped before any complete bundle was committed",
+  "prepared": [
+    {
+      "repository": "aac6fef/laya-coreml-adaptive-fp16",
+      "precision": "float16",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-coreml-adaptive-fp16"
+    },
+    {
+      "repository": "aac6fef/laya-coreml-adaptive-fp32",
+      "precision": "float32",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-coreml-adaptive-fp32"
+    },
+    {
+      "repository": "aac6fef/laya-multilingual-coreml-adaptive-fp16",
+      "precision": "float16",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-multilingual-coreml-adaptive-fp16"
+    },
+    {
+      "repository": "aac6fef/laya-multilingual-coreml-adaptive-fp32",
+      "precision": "float32",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-multilingual-coreml-adaptive-fp32"
+    },
+    {
+      "repository": "aac6fef/laya-typed-decisions-coreml-adaptive-fp16",
+      "precision": "float16",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-typed-decisions-coreml-adaptive-fp16"
+    },
+    {
+      "repository": "aac6fef/laya-typed-decisions-coreml-adaptive-fp32",
+      "precision": "float32",
+      "local_path": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.0/laya-typed-decisions-coreml-adaptive-fp32"
+    }
+  ]
+}

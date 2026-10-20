@@ -1,0 +1,31 @@
+{
+  "version": "0.5.1",
+  "native_source_sha256": "d62a6e98219380eb19a588a83728ec228275fb83565a04d4319c9c5c3f849369",
+  "artifacts": {
+    "laya_coreml-0.5.1-py3-none-any.whl": "428bb8f9a007de2fb1ccd77a2a06b5cd6f3f1db8ded68082c9986eee99c89e73",
+    "laya_coreml-0.5.1.tar.gz": "b1d167f196b1bf5f6fdc19498ef55016957f40380e335fd8ebe2f331a734d6fe"
+  },
+  "tests_passed": 337,
+  "strict_twine": "passed",
+  "publication_status": "awaiting_tag_pipeline",
+  "ci_run": "https://github.com/mizorewww/laya-coreml/actions/runs/39353060693",
+  "additional_native_ci": "https://github.com/mizorewww/laya-coreml/actions/runs/39353001593",
+  "real_models": [
+    "benchmarks/results/v051-laya-float16-validation.json",
+    "benchmarks/results/v051-laya-float32-validation.json",
+    "benchmarks/results/v051-laya-multilingual-float16-validation.json",
+    "benchmarks/results/v051-laya-multilingual-float32-validation.json",
+    "benchmarks/results/v051-laya-typed-decisions-float16-validation.json",
+    "benchmarks/results/v051-laya-typed-decisions-float32-validation.json"
+  ],
+  "paired_performance": "https://github.com/mizorewww/laya-mlx/blob/main/benchmarks/results/v051-compiled-paired/paired-summary.json",
+  "p50_wins": 18,
+  "mean_throughput_wins": 18,
+  "p95_wins": 16,
+  "failed_unpublished_tag": "v0.5.0",
+  "failure_and_fix": "Repeated package MLModel construction in shape cache caused a fatal native GIL-state error on macOS 26. Extra instances now use CompiledMLModel from retained base artifacts; instances release before base models.",
+  "upstream_timing_test_note": "One earlier compiled-cache CI attempt failed an unchanged upstream 100 ms idle-unload assertion; native conversion tests passed. The same assertion passed on current CI and the failed-job rerun; no timing thresholds were changed.",
+  "offline_wheel_smoke": "wheel-v051-smoke.json",
+  "offline_packaged_real_models": 3,
+  "installed_native_source_matches": true
+}

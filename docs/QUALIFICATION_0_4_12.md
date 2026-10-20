@@ -1,5 +1,7 @@
 # v0.4.12 qualification evidence
 
+Core ML release follow-up: the 0.5.1 compiled-instance fix has separate [correctness, performance and tail-latency evidence](https://github.com/mizorewww/laya-coreml/blob/main/docs/QUALIFICATION_0_5_1.md). The Core ML figures below describe the earlier loader; MLX runtime code is unchanged.
+
 Upstream: `ffc142012af63d015fa19f05f29f9c5ff329a2cc`. These development qualification results used package version 0.4.0. The 0.5.0 release changes only runtime version metadata; final package and publication evidence is recorded separately in `benchmarks/results/release-v050.json`.
 
 ## Correctness and scope

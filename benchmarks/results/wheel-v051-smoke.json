@@ -1,0 +1,142 @@
+{
+  "native_source_sha256": "d62a6e98219380eb19a588a83728ec228275fb83565a04d4319c9c5c3f849369",
+  "installed_version": "0.5.1",
+  "module_path": "/tmp/laya-coreml-v0412-wheel/lib/python3.12/site-packages/laya_coreml/__init__.py",
+  "without_dependencies": {
+    "torch": true,
+    "mlx": true,
+    "transformers": true
+  },
+  "models": [
+    {
+      "repository": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-coreml-adaptive-fp16",
+      "revision": null,
+      "compute_units": "cpu_gpu",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "refund": {
+            "type": "noul",
+            "noul": 0.9115,
+            "confidence": 0.9115,
+            "answer_confidence": 0.9115,
+            "action": {
+              "act_probability": 1.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 43,
+          "output_tokens": 0,
+          "state_tokens": 10,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      },
+      "repeat_calls": 3,
+      "warmup_seconds": 3.667886333001661,
+      "batch_states": 17,
+      "stable": true,
+      "paths": [
+        "single",
+        "batch",
+        "long",
+        "structured",
+        "OptionStabilityHook"
+      ],
+      "loaded_batch_capacities": [
+        2,
+        4,
+        16
+      ]
+    },
+    {
+      "repository": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-multilingual-coreml-adaptive-fp16",
+      "revision": null,
+      "compute_units": "cpu_gpu",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "refund": {
+            "type": "noul",
+            "noul": 0.9751,
+            "confidence": 0.9751,
+            "answer_confidence": 0.9751,
+            "action": {
+              "act_probability": 1.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 43,
+          "output_tokens": 0,
+          "state_tokens": 10,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      },
+      "repeat_calls": 3,
+      "warmup_seconds": 2.657571915999142,
+      "batch_states": 17,
+      "stable": true,
+      "paths": [
+        "single",
+        "batch",
+        "long",
+        "structured",
+        "OptionStabilityHook"
+      ],
+      "loaded_batch_capacities": [
+        2,
+        4,
+        16
+      ]
+    },
+    {
+      "repository": "/Users/aac6fef/Developer/laya-coreml/models/hub-v0.5.1/laya-typed-decisions-coreml-adaptive-fp16",
+      "revision": null,
+      "compute_units": "cpu_gpu",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "refund": {
+            "type": "noul",
+            "noul": 0.6778,
+            "confidence": 0.6778,
+            "answer_confidence": 0.6778,
+            "action": {
+              "act_probability": 1.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 43,
+          "output_tokens": 0,
+          "state_tokens": 10,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      },
+      "repeat_calls": 3,
+      "warmup_seconds": 3.7711723749998782,
+      "batch_states": 17,
+      "stable": true,
+      "paths": [
+        "single",
+        "batch",
+        "long",
+        "structured",
+        "OptionStabilityHook"
+      ],
+      "loaded_batch_capacities": [
+        2,
+        4,
+        16
+      ]
+    }
+  ],
+  "network_attempts_during_offline_sections": 0
+}

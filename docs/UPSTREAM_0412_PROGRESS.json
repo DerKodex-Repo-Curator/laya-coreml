@@ -696,7 +696,7 @@
   "remaining": [],
   "completion_claim": true,
   "completion_scope": "Pinned upstream v0.4.12 applicable host API, native backend boundaries, local tests, finite real-model fidelity/stability and measured FP32 workloads; unpublished, no universal accuracy/performance claim.",
-  "qualification_report": "docs/QUALIFICATION_0_4_12.md",
+  "qualification_report": "docs/QUALIFICATION_0_5_1.md",
   "limitations": [
     "Finite fixture parity is not universal model accuracy or calibrated-confidence quality",
     "Core ML extra execution instances increase RSS; final FP32 feature run recorded 5.10\u201313.51 GiB process peak RSS, not a complete device-allocation measure",
@@ -712,6 +712,7 @@
     "Pass remote CI",
     "Publish and verify GitHub Release and PyPI artifacts"
   ],
-  "release_status": "compiled_instance_fix_under_validation",
-  "failed_unpublished_tag": "v0.5.0"
+  "release_status": "awaiting_publication",
+  "failed_unpublished_tag": "v0.5.0",
+  "release_receipt": "benchmarks/results/release-v051.json"
 }

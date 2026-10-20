@@ -9,8 +9,10 @@
   },
   "tests_passed": 334,
   "strict_twine": "passed",
-  "publication_status": "pending_remote_ci",
+  "publication_status": "failed_ci_not_published",
   "offline_wheel_smoke": "wheel-v050-smoke.json",
   "offline_real_models": 3,
-  "installed_native_source_matches": true
+  "installed_native_source_matches": true,
+  "failure_run": "https://github.com/mizorewww/laya-coreml/actions/runs/39352355979",
+  "superseded_by": "0.5.1"
 }
