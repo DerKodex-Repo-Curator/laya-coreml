@@ -52,15 +52,24 @@ def test_real_coreml_conversion_and_dynamic_padding(checkpoint):
 
     source, model = checkpoint
     output = source / "export"
+    print("native conversion: start", flush=True)
     convert(source, output, batch_size=3, max_options=4)
+    print("native conversion: saved; loading Agent", flush=True)
     agent = Agent(output, compute_units="cpu_gpu")
+    print("native Agent: loaded", flush=True)
     for length in (17, 47, 64):
         inputs = batch(length, lengths=agent.shape["lengths"])
         with torch.inference_mode():
             expected = model(**inputs)
+        print(
+            f"native forward: length={length} shapes={[tuple(v.shape) for v in inputs.values()]}",
+            flush=True,
+        )
         actual = agent.forward({k: v.numpy() for k, v in inputs.items()})
+        print(f"native forward: length={length} complete", flush=True)
         for a, e in zip(actual, expected):
             np.testing.assert_allclose(a, e.numpy(), atol=0.015, rtol=0.015)
+    print("native public predict: start", flush=True)
     result = agent.predict(
         "sample", {"q": {"type": "choice", "instructions": "pick", "criteria": ["a", "b"]}}
     )
